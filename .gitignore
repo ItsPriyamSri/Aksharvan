@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+appwrite/functions/*/node_modules/
+
+# Next.js
+.next/
+out/
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# Environment — never commit real values
+.env
+.env.local
+.env.*.local
+
+# Secrets — belt-and-suspenders catch
+*.pem
+*.key
+
+# Appwrite CLI session
+.appwrite/
+
+# Generated audio — uploaded to Appwrite Storage, not committed
+scripts/audio-output/
+*.opus
+*.aac
+*.m4a
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker
+.dockerignore.local

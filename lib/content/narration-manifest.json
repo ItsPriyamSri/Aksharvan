@@ -1,0 +1,437 @@
+{
+  "_comment": "Master narration manifest — all audioName entries consumed by scripts/generate-audio.js. Each entry must have: audioName (stable file id), text (Hindi copy), voice (tina|toto|default), and category. Pedagogy rule: sound clips say object→sound ('बतख — ब'), never 'ब से बतख' or 'बतख से ब'.",
+  "entries": [
+    {
+      "audioName": "prompt_yeh_kya_hai__tina",
+      "text": "यह क्या है?",
+      "voice": "tina",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_yeh_kya_hai__toto",
+      "text": "यह क्या है?",
+      "voice": "toto",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_pehli_awaz__tina",
+      "text": "इसकी पहली आवाज़ क्या है?",
+      "voice": "tina",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_pehli_awaz__toto",
+      "text": "इसकी पहली आवाज़ क्या है?",
+      "voice": "toto",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_jodkar__tina",
+      "text": "इन्हें जोड़ें — कौन सा शब्द बना?",
+      "voice": "tina",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_jodkar__toto",
+      "text": "इन्हें जोड़ें — कौन सा शब्द बना?",
+      "voice": "toto",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_match_build__tina",
+      "text": "इन अक्षरों से शब्द बनाओ।",
+      "voice": "tina",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_match_build__toto",
+      "text": "इन अक्षरों से शब्द बनाओ।",
+      "voice": "toto",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_memory__tina",
+      "text": "एक जैसे अक्षर ढूँढो।",
+      "voice": "tina",
+      "category": "prompt"
+    },
+    {
+      "audioName": "prompt_memory__toto",
+      "text": "एक जैसे अक्षर ढूँढो।",
+      "voice": "toto",
+      "category": "prompt"
+    },
+    {
+      "audioName": "encourage_shabash__tina",
+      "text": "शाबाश!",
+      "voice": "tina",
+      "category": "encouragement"
+    },
+    {
+      "audioName": "encourage_shabash__toto",
+      "text": "शाबाश!",
+      "voice": "toto",
+      "category": "encouragement"
+    },
+    {
+      "audioName": "encourage_bahut_badhiya__tina",
+      "text": "बहुत बढ़िया!",
+      "voice": "tina",
+      "category": "encouragement"
+    },
+    {
+      "audioName": "encourage_bahut_badhiya__toto",
+      "text": "बहुत बढ़िया!",
+      "voice": "toto",
+      "category": "encouragement"
+    },
+    {
+      "audioName": "encourage_wah__tina",
+      "text": "वाह!",
+      "voice": "tina",
+      "category": "encouragement"
+    },
+    {
+      "audioName": "encourage_wah__toto",
+      "text": "वाह!",
+      "voice": "toto",
+      "category": "encouragement"
+    },
+    {
+      "audioName": "nudge_try_again__tina",
+      "text": "कोई बात नहीं, फिर से कोशिश करो।",
+      "voice": "tina",
+      "category": "nudge"
+    },
+    {
+      "audioName": "nudge_try_again__toto",
+      "text": "कोई बात नहीं, फिर से कोशिश करो।",
+      "voice": "toto",
+      "category": "nudge"
+    },
+    {
+      "audioName": "nudge_listen__tina",
+      "text": "ध्यान से सुनो।",
+      "voice": "tina",
+      "category": "nudge"
+    },
+    {
+      "audioName": "nudge_listen__toto",
+      "text": "ध्यान से सुनो।",
+      "voice": "toto",
+      "category": "nudge"
+    },
+    {
+      "audioName": "obj_batakh",
+      "text": "बतख",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_sapera",
+      "text": "सपेरा",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_patang",
+      "text": "पतंग",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_rassi",
+      "text": "रस्सी",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_anaar",
+      "text": "अनार",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_ghadi",
+      "text": "घड़ी",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_tarbooj",
+      "text": "तरबूज",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_kachua",
+      "text": "कछुआ",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_chammach",
+      "text": "चम्मच",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "obj_lattu",
+      "text": "लट्टू",
+      "voice": "default",
+      "category": "object"
+    },
+    {
+      "audioName": "sound_ba",
+      "text": "ब",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_sa",
+      "text": "स",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_pa",
+      "text": "प",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_ra",
+      "text": "र",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_a",
+      "text": "अ",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_gha",
+      "text": "घ",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_ta",
+      "text": "त",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_ka",
+      "text": "क",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_cha",
+      "text": "च",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "sound_la",
+      "text": "ल",
+      "voice": "default",
+      "category": "sound"
+    },
+    {
+      "audioName": "teach_batakh_ba",
+      "text": "बतख — ब",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_sapera_sa",
+      "text": "सपेरा — स",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_patang_pa",
+      "text": "पतंग — प",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_rassi_ra",
+      "text": "रस्सी — र",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_anaar_a",
+      "text": "अनार — अ",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_ghadi_gha",
+      "text": "घड़ी — घ",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_tarbooj_ta",
+      "text": "तरबूज — त",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_kachua_ka",
+      "text": "कछुआ — क",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_chammach_cha",
+      "text": "चम्मच — च",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "teach_lattu_la",
+      "text": "लट्टू — ल",
+      "voice": "default",
+      "category": "teach"
+    },
+    {
+      "audioName": "word_bas",
+      "text": "बस",
+      "voice": "default",
+      "category": "word"
+    },
+    {
+      "audioName": "word_par",
+      "text": "पर",
+      "voice": "default",
+      "category": "word"
+    },
+    {
+      "audioName": "word_ab",
+      "text": "अब",
+      "voice": "default",
+      "category": "word"
+    },
+    {
+      "audioName": "word_ghar",
+      "text": "घर",
+      "voice": "default",
+      "category": "word"
+    },
+    {
+      "audioName": "word_tak",
+      "text": "तक",
+      "voice": "default",
+      "category": "word"
+    },
+    {
+      "audioName": "word_chal",
+      "text": "चल",
+      "voice": "default",
+      "category": "word"
+    },
+    {
+      "audioName": "restore_color",
+      "text": "वाह! रंग वापस आ गए!",
+      "voice": "default",
+      "category": "restore"
+    },
+    {
+      "audioName": "restore_grass",
+      "text": "देखो, घास और फूल उग आए!",
+      "voice": "default",
+      "category": "restore"
+    },
+    {
+      "audioName": "restore_trees",
+      "text": "पेड़ वापस आ गए!",
+      "voice": "default",
+      "category": "restore"
+    },
+    {
+      "audioName": "restore_rivers",
+      "text": "नदी फिर से बहने लगी!",
+      "voice": "default",
+      "category": "restore"
+    },
+    {
+      "audioName": "restore_animals",
+      "text": "जानवर लौट आए!",
+      "voice": "default",
+      "category": "restore"
+    },
+    {
+      "audioName": "restore_birds_sky",
+      "text": "पंछी और आसमान — जंगल फिर से जीवित हो गया!",
+      "voice": "default",
+      "category": "restore"
+    },
+    {
+      "audioName": "cutscene_intro_01",
+      "text": "नमस्ते! मैं टोटो हूँ। मैं अक्षरवन से आया हूँ।",
+      "voice": "toto",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_intro_02a",
+      "text": "हमारी दुनिया अक्षरवन से रंग और रोशनी गायब हो रहे हैं।",
+      "voice": "toto",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_intro_02b",
+      "text": "ओह नहीं! हमें कुछ करना होगा!",
+      "voice": "tina",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_intro_03a",
+      "text": "हमें तुम्हारी मदद चाहिए। क्या तुम हमारे साथ चलोगे?",
+      "voice": "toto",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_intro_03b",
+      "text": "क्या आप हमारी मदद करेंगे?",
+      "voice": "tina",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_jungle_01",
+      "text": "यह है जादूई जंगल। पहले यहाँ बहुत सारे रंग थे।",
+      "voice": "tina",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_jungle_02",
+      "text": "लेकिन अब सब कुछ धूसर हो गया है — न रंग, न पेड़, न जानवर।",
+      "voice": "toto",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_jungle_03a",
+      "text": "हमें आपकी मदद चाहिए इस जंगल में वापस से रंग भरने के लिए।",
+      "voice": "toto",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_jungle_03b",
+      "text": "हर सही जवाब के साथ जंगल में जान लौट आएगी। चलो शुरू करें!",
+      "voice": "tina",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "cutscene_complete_01",
+      "text": "शाबाश! आपने जादूई जंगल को बचा लिया!",
+      "voice": "tina",
+      "category": "cutscene"
+    }
+  ]
+}
