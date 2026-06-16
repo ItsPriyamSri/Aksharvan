@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .kite { animation: kiteFly 2s ease-in-out infinite; transform-origin: 100px 80px; }
+      .tail { animation: tailWave 2s ease-in-out infinite; transform-origin: 100px 130px; }
+      .string { animation: stringWave 2s ease-in-out infinite; }
+      @keyframes kiteFly { 0%,100%{transform:rotate(-5deg) translateY(0)} 50%{transform:rotate(5deg) translateY(-8px)} }
+      @keyframes tailWave { 0%,100%{transform:rotate(0deg)} 33%{transform:rotate(15deg)} 66%{transform:rotate(-10deg)} }
+      @keyframes stringWave { 0%,100%{d:path("M100 130 Q140 160 160 175")} 50%{d:path("M100 130 Q120 165 160 175")} }
+    </style>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="rgba(255,183,77,0.12)"/>
+  <rect width="200" height="200" rx="32" fill="none" stroke="#FFB300" stroke-width="2.5" opacity="0.4"/>
+  <g class="kite">
+    <path d="M100 30 L145 85 L100 130 L55 85 Z" fill="#F44336"/>
+    <path d="M100 30 L145 85 L100 130 L55 85 Z" fill="none" stroke="#B71C1C" stroke-width="2"/>
+    <line x1="100" y1="30" x2="100" y2="130" stroke="#B71C1C" stroke-width="1.5" opacity="0.5"/>
+    <line x1="55" y1="85" x2="145" y2="85" stroke="#B71C1C" stroke-width="1.5" opacity="0.5"/>
+    <path d="M100 30 L145 85" fill="#FFEB3B" opacity="0.4"/>
+    <path d="M100 30 L55 85" fill="#4CAF50" opacity="0.4"/>
+    <circle cx="100" cy="85" r="6" fill="#FFD600"/>
+  </g>
+  <g class="tail">
+    <path d="M100 130 Q108 145 95 155 Q110 162 98 172" fill="none" stroke="#FF7043" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="98" cy="172" r="4" fill="#FF7043"/>
+    <ellipse cx="105" cy="145" rx="6" ry="3" fill="#FFD600" transform="rotate(-30 105 145)"/>
+    <ellipse cx="96" cy="162" rx="6" ry="3" fill="#4CAF50" transform="rotate(20 96 162)"/>
+  </g>
+  <path d="M100 130 Q148 162 162 178" fill="none" stroke="#795548" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+  <text x="100" y="194" text-anchor="middle" font-size="18" font-family="Mukta,sans-serif" fill="#E65100" font-weight="800">पतंग</text>
+</svg>

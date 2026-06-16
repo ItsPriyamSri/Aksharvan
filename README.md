@@ -31,6 +31,9 @@ npm run preview    # serve out/ locally
 
 ### One-time setup
 
+Full walkthrough: **[docs/APPWRITE-SETUP.md](docs/APPWRITE-SETUP.md)**  
+Quick status: `npm run appwrite:check`
+
 1. **Create the Appwrite project** in the cloud console.
 
 2. **Login and link the project:**

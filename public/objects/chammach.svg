@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .spoon { animation: stir 2s ease-in-out infinite; transform-origin: 100px 100px; }
+      .shine { animation: shine 2s ease-in-out infinite; }
+      @keyframes stir { 0%,100%{transform:rotate(-15deg)} 50%{transform:rotate(15deg)} }
+      @keyframes shine { 0%,100%{opacity:0.3} 50%{opacity:0.9} }
+    </style>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="rgba(158,158,158,0.12)"/>
+  <rect width="200" height="200" rx="32" fill="none" stroke="#9E9E9E" stroke-width="2.5" opacity="0.4"/>
+  <g class="spoon">
+    <ellipse cx="100" cy="60" rx="28" ry="32" fill="#E0E0E0"/>
+    <ellipse cx="100" cy="60" rx="28" ry="32" fill="none" stroke="#BDBDBD" stroke-width="2"/>
+    <ellipse class="shine" cx="92" cy="52" rx="8" ry="12" fill="white" opacity="0.6"/>
+    <rect x="94" y="88" width="12" height="80" rx="6" fill="#E0E0E0"/>
+    <rect x="94" y="88" width="12" height="80" rx="6" fill="none" stroke="#BDBDBD" stroke-width="1.5"/>
+    <ellipse class="shine" cx="97" cy="120" rx="2" ry="20" fill="white" opacity="0.5"/>
+    <ellipse cx="100" cy="168" rx="8" ry="5" fill="#BDBDBD"/>
+  </g>
+  <text x="100" y="194" text-anchor="middle" font-size="18" font-family="Mukta,sans-serif" fill="#616161" font-weight="800">चम्मच</text>
+</svg>

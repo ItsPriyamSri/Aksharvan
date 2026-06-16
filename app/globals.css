@@ -1,0 +1,264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════
+   AKSHARVAN DESIGN SYSTEM v4
+═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Core palette ─────────────────────────────────────── */
+  --night:          #0D1117;
+  --deep-blue:      #141B35;
+  --forest-night:   #0A1810;
+  --forest-dark:    #16241C;
+  --forest-mid:     #1F5C44;
+  --forest-bright:  #2E7D5B;
+
+  --surface:        #FFF8ED;
+  --surface-dim:    #F5EDD8;
+
+  --firefly:        #FFC84A;
+  --firefly-glow:   rgba(255,200,74,0.35);
+  --firefly-bright: #FFE08A;
+
+  --tina:           #FF6B9D;
+  --toto:           #4ECDC4;
+  --magic:          #7C5CBF;
+  --magic-bright:   #9D7FD4;
+  --ink:            #1A1025;
+  --success:        #00C896;
+  --warn:           #FF6B6B;
+
+  /* ── v3 backward-compat aliases ──────────────────────── */
+  --bg-twilight:    #141B35;
+  --bg-forest-dark: #16241C;
+
+  /* ── Typography ──────────────────────────────────────── */
+  --font-display: "Baloo 2", "Noto Sans Devanagari", sans-serif;
+  --font-body:    "Mukta", "Noto Sans Devanagari", sans-serif;
+  --font-akshar:  "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
+
+  /* ── Spacing / motion ────────────────────────────────── */
+  --touch:    56px;
+  --spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--night);
+  color: var(--surface);
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile-first container */
+#__next {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  position: relative;
+}
+
+/* Typography */
+h1,h2,h3,h4,h5,h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.akshar, [data-akshar] {
+  font-family: var(--font-akshar);
+  font-feature-settings: "kern" 1;
+}
+
+/* ── Touch targets ───────────────────────────────────────── */
+button, [role="button"], a {
+  min-height: var(--touch);
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button:focus-visible, [role="button"]:focus-visible, a:focus-visible {
+  outline: 3px solid var(--firefly);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ── Reduced motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPONENTS
+═══════════════════════════════════════════════════════════ */
+@layer components {
+
+  /* Glass surface */
+  .glass {
+    background: rgba(255,248,237,0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,248,237,0.12);
+    border-radius: 24px;
+  }
+
+  /* White card (on dark backgrounds) */
+  .card {
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+
+  /* Primary CTA button */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: var(--touch);
+    padding: 0 28px;
+    background: linear-gradient(135deg, var(--firefly-bright), var(--firefly));
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    border-radius: 9999px;
+    box-shadow: 0 4px 20px rgba(255,200,74,0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+    transition: transform 0.15s var(--spring), box-shadow 0.2s;
+  }
+  .btn-primary:hover  { box-shadow: 0 6px 28px rgba(255,200,74,0.5), inset 0 1px 0 rgba(255,255,255,0.4); }
+  .btn-primary:active { transform: scale(0.95); }
+  .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  /* Ghost button */
+  .btn-secondary,
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: var(--touch);
+    padding: 0 22px;
+    background: rgba(255,248,237,0.08);
+    color: var(--surface);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-radius: 9999px;
+    border: 1.5px solid rgba(255,248,237,0.2);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .btn-secondary:hover,
+  .btn-ghost:hover {
+    background: rgba(255,248,237,0.13);
+    border-color: rgba(255,248,237,0.35);
+  }
+
+  /* Exercise tile base */
+  .tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,248,237,0.07);
+    border: 2px solid rgba(255,248,237,0.15);
+    border-radius: 24px;
+    transition: transform 0.15s var(--spring), border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .tile:active { transform: scale(0.92); }
+  .tile--correct {
+    border-color: var(--success) !important;
+    background: rgba(0,200,150,0.12) !important;
+    box-shadow: 0 0 20px rgba(0,200,150,0.3);
+  }
+  .tile--wrong {
+    border-color: rgba(255,107,107,0.6) !important;
+    background: rgba(255,107,107,0.08) !important;
+  }
+  .tile--selected {
+    border-color: var(--firefly) !important;
+    background: rgba(255,200,74,0.1) !important;
+    box-shadow: 0 0 16px rgba(255,200,74,0.3);
+  }
+
+  /* Letter tile (legacy compat) */
+  .letter-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-akshar);
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    min-width: 72px;
+    min-height: 72px;
+    cursor: pointer;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════ */
+@layer utilities {
+  .h-dvh     { height: 100dvh; }
+  .min-h-dvh { min-height: 100dvh; }
+  .pb-safe   { padding-bottom: env(safe-area-inset-bottom, 12px); }
+  .pt-safe   { padding-top: env(safe-area-inset-top, 0px); }
+
+  .screen-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 12px);
+  }
+
+  .leading-deva { line-height: 1.75; }
+  .text-hindi   { word-break: keep-all; overflow-wrap: break-word; }
+
+  /* Gold gradient text */
+  .gold,
+  .text-firefly-gradient {
+    background: linear-gradient(135deg, var(--firefly-bright) 0%, var(--firefly) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,200,74,0.3); border-radius: 99px; }
+::selection { background: rgba(255,200,74,0.3); color: var(--surface); }

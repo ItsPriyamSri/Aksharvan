@@ -2,9 +2,9 @@
 
 > **Loop state file.** Claude Code updates this every iteration. The loop stops only when every epic is `DONE` and the Completion Oracle in `.claude/FRONTEND-LOOP.md` §9 passes.
 
-**Last updated:** (not started)  
+**Last updated:** 2026-06-16  
 **Current epic:** E1  
-**Iteration:** 0  
+**Iteration:** 1  
 **Blockers:** none  
 **Appwrite mode:** `auto` (real SDK calls when configured; fallbacks when not)
 
@@ -14,7 +14,7 @@
 
 | Epic | Name | Status | Evidence |
 |------|------|--------|----------|
-| E1 | Project shell + PWA + Appwrite service layer | `TODO` | |
+| E1 | Project shell + PWA + Appwrite service layer | `DONE` | `npm run build` passes; 13 static pages exported |
 | E2 | Auth & profile (OTP + PIN tabs, dual-path) | `TODO` | |
 | E3 | Menu + map (placeholders + hotspots) | `TODO` | |
 | E4 | Cutscenes (world video + level zoom intro) | `TODO` | |
@@ -34,16 +34,16 @@ Status values: `TODO` | `IN_PROGRESS` | `DONE` | `BLOCKED`
 
 | Integration | Service file | Real Appwrite path | Fallback | Wired? |
 |-------------|--------------|-------------------|----------|--------|
-| SDK client | `lib/appwrite/client.ts` | `Client` singleton | — | |
-| Auth OTP | `lib/appwrite/services/auth.ts` | `createPhoneToken` → `createSession` | mock OTP any 6 digits | |
-| Auth PIN | `lib/appwrite/services/auth.ts` | `FUNCTION_LOGIN_WITH_PIN` → `createSession` | mock PIN `1234` | |
-| Profiles | `lib/appwrite/services/profile.ts` | `createDocument` / `getDocument` / `updateDocument` | localStorage mirror | |
-| Progress | `lib/appwrite/services/progress.ts` | `${userId}_level-1` upsert | localStorage mirror + sync | |
-| Set PIN | `lib/appwrite/services/pin.ts` | `FUNCTION_SET_PIN` | localStorage flag | |
-| ASR | `lib/appwrite/services/asr.ts` | `FUNCTION_ASR_RECOGNIZE` | Web Speech API | |
-| Audio playback | `lib/appwrite/services/audio.ts` | Howler + `storage.getFileView` | `speechSynthesis` + subtitle | |
-| Static assets | `lib/appwrite/services/assets.ts` | `storage.getFileView/Preview` | `public/assets/*` | |
-| Storage URLs | constants + assets service | `BUCKET_*` from `constants.ts` | local paths | |
+| SDK client | `lib/appwrite/client.ts` | `Client` singleton | — | ✅ |
+| Auth OTP | `lib/appwrite/auth.ts` | `createPhoneToken` → `createSession` | mock OTP any 6 digits | ✅ |
+| Auth PIN | `lib/appwrite/auth.ts` + `functions.ts` | `FUNCTION_LOGIN_WITH_PIN` → `createSession` | mock PIN `1234` | ✅ |
+| Profiles | `lib/appwrite/profile.ts` | `createDocument` / `getDocument` / `updateDocument` | localStorage mirror | ✅ |
+| Progress | `lib/appwrite/progress.ts` | `${userId}_level-1` upsert | localStorage mirror + sync | ✅ |
+| Set PIN | `lib/appwrite/functions.ts` | `FUNCTION_SET_PIN` | localStorage flag | ✅ |
+| ASR | `lib/appwrite/functions.ts` | `FUNCTION_ASR_RECOGNIZE` | Web Speech API | ✅ |
+| Audio playback | `lib/appwrite/storage.ts` | Howler + `storage.getFileView` | `speechSynthesis` + subtitle | ✅ |
+| Static assets | `lib/appwrite/storage.ts` | `storage.getFileView/Preview` | `public/assets/*` | ✅ |
+| Storage URLs | constants + storage service | `BUCKET_*` from `constants.ts` | local paths | ✅ |
 
 ---
 
@@ -67,7 +67,14 @@ Status values: `TODO` | `IN_PROGRESS` | `DONE` | `BLOCKED`
 ## Verification log
 
 ```
-(iteration 0 — not started)
+iteration 1 — 2026-06-16
+- npm run typecheck: PASS (no errors)
+- npm run lint:      PASS (warnings only — <img>, custom font; no errors)
+- npm run build:     PASS — 13 static pages exported
+  Routes: / /login /intro /menu /map /settings /story
+          /level/level-1 /level/level-1/complete /level/level-1/play
+- Integration contract: all Appwrite IDs come from lib/appwrite/constants.ts
+- Only NEXT_PUBLIC_APPWRITE_ENDPOINT + NEXT_PUBLIC_APPWRITE_PROJECT_ID required
 ```
 
 ---

@@ -1,333 +1,374 @@
 {
-  "projectId": "YOUR_PROJECT_ID",
-  "projectName": "Aksharvan",
-  "databases": [
-    {
-      "$id": "aksharvan",
-      "name": "Aksharvan",
-      "enabled": true
-    }
-  ],
-  "collections": [
-    {
-      "$id": "profiles",
-      "databaseId": "aksharvan",
-      "name": "profiles",
-      "enabled": true,
-      "documentSecurity": true,
-      "$permissions": [],
-      "attributes": [
+    "projectId": "6a3155960009477f46d5",
+    "projectName": "Aksharvan",
+    "functions": [
         {
-          "key": "parent_phone",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "size": 20,
-          "default": null
+            "$id": "set-pin",
+            "name": "set-pin",
+            "runtime": "node-21.0",
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "path": "appwrite/functions/set-pin"
         },
         {
-          "key": "language",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": false,
-          "array": false,
-          "size": 5,
-          "default": "hi"
+            "$id": "login-with-pin",
+            "name": "login-with-pin",
+            "runtime": "node-21.0",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "path": "appwrite/functions/login-with-pin"
         },
         {
-          "key": "child_age",
-          "type": "integer",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "min": 4,
-          "max": 10,
-          "default": null
-        },
-        {
-          "key": "avatar_variant",
-          "type": "integer",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "min": 0,
-          "max": 2,
-          "default": null
-        },
-        {
-          "key": "pin_hash",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": false,
-          "array": false,
-          "size": 72,
-          "default": null
-        },
-        {
-          "key": "created_at",
-          "type": "datetime",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "format": "",
-          "default": null
+            "$id": "asr-recognize",
+            "name": "asr-recognize",
+            "runtime": "node-21.0",
+            "execute": [],
+            "events": [],
+            "schedule": "",
+            "timeout": 30,
+            "enabled": true,
+            "logging": true,
+            "entrypoint": "src/main.js",
+            "commands": "npm install",
+            "path": "appwrite/functions/asr-recognize"
         }
-      ],
-      "indexes": []
-    },
-    {
-      "$id": "progress",
-      "databaseId": "aksharvan",
-      "name": "progress",
-      "enabled": true,
-      "documentSecurity": true,
-      "$permissions": [],
-      "attributes": [
+    ],
+    "databases": [
         {
-          "key": "profile_id",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "size": 36,
-          "default": null
-        },
-        {
-          "key": "level_id",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "size": 36,
-          "default": null
-        },
-        {
-          "key": "state",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "size": 65535,
-          "default": null
-        },
-        {
-          "key": "updated_at",
-          "type": "datetime",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "format": "",
-          "default": null
+            "$id": "aksharvan",
+            "name": "Aksharvan",
+            "enabled": true
         }
-      ],
-      "indexes": [
+    ],
+    "collections": [
         {
-          "key": "profile_id_idx",
-          "type": "key",
-          "status": "available",
-          "error": "",
-          "attributes": ["profile_id"],
-          "orders": ["ASC"]
+            "$id": "profiles",
+            "databaseId": "aksharvan",
+            "name": "profiles",
+            "enabled": true,
+            "documentSecurity": true,
+            "$permissions": [],
+            "attributes": [
+                {
+                    "key": "parent_phone",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "size": 20,
+                    "default": null
+                },
+                {
+                    "key": "language",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": false,
+                    "array": false,
+                    "size": 5,
+                    "default": "hi"
+                },
+                {
+                    "key": "child_age",
+                    "type": "integer",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "min": 4,
+                    "max": 10,
+                    "default": null
+                },
+                {
+                    "key": "avatar_variant",
+                    "type": "integer",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "min": 0,
+                    "max": 2,
+                    "default": null
+                },
+                {
+                    "key": "pin_hash",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": false,
+                    "array": false,
+                    "size": 72,
+                    "default": null
+                },
+                {
+                    "key": "created_at",
+                    "type": "datetime",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                }
+            ],
+            "indexes": []
         },
         {
-          "key": "profile_level_idx",
-          "type": "key",
-          "status": "available",
-          "error": "",
-          "attributes": ["profile_id", "level_id"],
-          "orders": ["ASC", "ASC"]
+            "$id": "progress",
+            "databaseId": "aksharvan",
+            "name": "progress",
+            "enabled": true,
+            "documentSecurity": true,
+            "$permissions": [],
+            "attributes": [
+                {
+                    "key": "profile_id",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null
+                },
+                {
+                    "key": "level_id",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null
+                },
+                {
+                    "key": "state",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "size": 65535,
+                    "default": null
+                },
+                {
+                    "key": "updated_at",
+                    "type": "datetime",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "profile_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "error": "",
+                    "attributes": [
+                        "profile_id"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
+                },
+                {
+                    "key": "profile_level_idx",
+                    "type": "key",
+                    "status": "available",
+                    "error": "",
+                    "attributes": [
+                        "profile_id",
+                        "level_id"
+                    ],
+                    "orders": [
+                        "ASC",
+                        "ASC"
+                    ]
+                }
+            ]
+        },
+        {
+            "$id": "recordings",
+            "databaseId": "aksharvan",
+            "name": "recordings",
+            "enabled": true,
+            "documentSecurity": true,
+            "$permissions": [],
+            "attributes": [
+                {
+                    "key": "profile_id",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null
+                },
+                {
+                    "key": "exercise_id",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null
+                },
+                {
+                    "key": "audio_path",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "size": 36,
+                    "default": null
+                },
+                {
+                    "key": "expected",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null
+                },
+                {
+                    "key": "transcript",
+                    "type": "string",
+                    "status": "available",
+                    "error": "",
+                    "required": false,
+                    "array": false,
+                    "size": 256,
+                    "default": null
+                },
+                {
+                    "key": "matched",
+                    "type": "boolean",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "default": null
+                },
+                {
+                    "key": "created_at",
+                    "type": "datetime",
+                    "status": "available",
+                    "error": "",
+                    "required": true,
+                    "array": false,
+                    "format": "",
+                    "default": null
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "profile_id_idx",
+                    "type": "key",
+                    "status": "available",
+                    "error": "",
+                    "attributes": [
+                        "profile_id"
+                    ],
+                    "orders": [
+                        "ASC"
+                    ]
+                }
+            ]
         }
-      ]
-    },
-    {
-      "$id": "recordings",
-      "databaseId": "aksharvan",
-      "name": "recordings",
-      "enabled": true,
-      "documentSecurity": true,
-      "$permissions": [],
-      "attributes": [
+    ],
+    "buckets": [
         {
-          "key": "profile_id",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "size": 36,
-          "default": null
+            "$id": "images",
+            "name": "images",
+            "enabled": true,
+            "maximumFileSize": 10485760,
+            "allowedFileExtensions": [
+                "svg",
+                "webp",
+                "avif",
+                "png"
+            ],
+            "compression": "gzip",
+            "encryption": false,
+            "antivirus": false,
+            "$permissions": [
+                "read(\"any\")"
+            ]
         },
         {
-          "key": "exercise_id",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "size": 64,
-          "default": null
+            "$id": "animations",
+            "name": "animations",
+            "enabled": true,
+            "maximumFileSize": 5242880,
+            "allowedFileExtensions": [
+                "json"
+            ],
+            "compression": "gzip",
+            "encryption": false,
+            "antivirus": false,
+            "$permissions": [
+                "read(\"any\")"
+            ]
         },
         {
-          "key": "audio_path",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "size": 36,
-          "default": null
+            "$id": "audio",
+            "name": "audio",
+            "enabled": true,
+            "maximumFileSize": 5242880,
+            "allowedFileExtensions": [
+                "opus",
+                "aac",
+                "m4a",
+                "wav",
+                "mp3"
+            ],
+            "compression": "none",
+            "encryption": false,
+            "antivirus": false,
+            "$permissions": [
+                "read(\"any\")"
+            ]
         },
         {
-          "key": "expected",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "size": 64,
-          "default": null
-        },
-        {
-          "key": "transcript",
-          "type": "string",
-          "status": "available",
-          "error": "",
-          "required": false,
-          "array": false,
-          "size": 256,
-          "default": null
-        },
-        {
-          "key": "matched",
-          "type": "boolean",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "default": null
-        },
-        {
-          "key": "created_at",
-          "type": "datetime",
-          "status": "available",
-          "error": "",
-          "required": true,
-          "array": false,
-          "format": "",
-          "default": null
+            "$id": "recordings",
+            "name": "recordings",
+            "enabled": true,
+            "maximumFileSize": 10485760,
+            "allowedFileExtensions": [
+                "opus",
+                "aac",
+                "m4a",
+                "wav",
+                "webm"
+            ],
+            "compression": "gzip",
+            "encryption": true,
+            "antivirus": false,
+            "$permissions": []
         }
-      ],
-      "indexes": [
-        {
-          "key": "profile_id_idx",
-          "type": "key",
-          "status": "available",
-          "error": "",
-          "attributes": ["profile_id"],
-          "orders": ["ASC"]
-        }
-      ]
-    }
-  ],
-  "buckets": [
-    {
-      "$id": "images",
-      "name": "images",
-      "enabled": true,
-      "maximumFileSize": 10485760,
-      "allowedFileExtensions": ["svg", "webp", "avif", "png"],
-      "compression": "gzip",
-      "encryption": false,
-      "antivirus": false,
-      "$permissions": ["read(\"any\")"]
-    },
-    {
-      "$id": "animations",
-      "name": "animations",
-      "enabled": true,
-      "maximumFileSize": 5242880,
-      "allowedFileExtensions": ["json"],
-      "compression": "gzip",
-      "encryption": false,
-      "antivirus": false,
-      "$permissions": ["read(\"any\")"]
-    },
-    {
-      "$id": "audio",
-      "name": "audio",
-      "enabled": true,
-      "maximumFileSize": 5242880,
-      "allowedFileExtensions": ["opus", "aac", "m4a"],
-      "compression": "none",
-      "encryption": false,
-      "antivirus": false,
-      "$permissions": ["read(\"any\")"]
-    },
-    {
-      "$id": "recordings",
-      "name": "recordings",
-      "enabled": true,
-      "maximumFileSize": 10485760,
-      "allowedFileExtensions": ["opus", "aac", "m4a", "wav", "webm"],
-      "compression": "gzip",
-      "encryption": true,
-      "antivirus": false,
-      "$permissions": []
-    }
-  ],
-  "functions": [
-    {
-      "$id": "set-pin",
-      "name": "set-pin",
-      "runtime": "node-21.0",
-      "execute": [],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true,
-      "entrypoint": "src/main.js",
-      "commands": "npm install",
-      "path": "appwrite/functions/set-pin"
-    },
-    {
-      "$id": "login-with-pin",
-      "name": "login-with-pin",
-      "runtime": "node-21.0",
-      "execute": ["any"],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true,
-      "entrypoint": "src/main.js",
-      "commands": "npm install",
-      "path": "appwrite/functions/login-with-pin"
-    },
-    {
-      "$id": "asr-recognize",
-      "name": "asr-recognize",
-      "runtime": "node-21.0",
-      "execute": [],
-      "events": [],
-      "schedule": "",
-      "timeout": 30,
-      "enabled": true,
-      "logging": true,
-      "entrypoint": "src/main.js",
-      "commands": "npm install",
-      "path": "appwrite/functions/asr-recognize"
-    }
-  ]
+    ]
 }

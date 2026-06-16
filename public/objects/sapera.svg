@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="bg2" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#A5D6A7" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#2E7D32" stop-opacity="0.06"/>
+    </radialGradient>
+    <style>
+      .snake { animation: sway 1.8s ease-in-out infinite; transform-origin: 100px 150px; }
+      .snakeHead { animation: headSway 1.8s ease-in-out infinite 0.1s; transform-origin: 100px 60px; }
+      .tongue { animation: tongue 1.8s ease-in-out infinite; transform-origin: 100px 75px; }
+      .hood { animation: hoodPulse 1.8s ease-in-out infinite; transform-origin: 100px 55px; }
+      .sapera { animation: saperaSwing 1.8s ease-in-out infinite; transform-origin: 100px 130px; }
+      .flute { animation: flutePlay 0.9s ease-in-out infinite; transform-origin: 95px 120px; }
+      @keyframes sway { 0%,100%{transform:rotate(0deg) translateX(0)} 25%{transform:rotate(8deg) translateX(5px)} 75%{transform:rotate(-8deg) translateX(-5px)} }
+      @keyframes headSway { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(12deg)} 75%{transform:rotate(-12deg)} }
+      @keyframes tongue { 0%,60%,100%{transform:scaleY(0) translateY(0)} 30%{transform:scaleY(1) translateY(8px)} }
+      @keyframes hoodPulse { 0%,100%{transform:scaleX(1)} 50%{transform:scaleX(1.15)} }
+      @keyframes saperaSwing { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+      @keyframes flutePlay { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(-5deg)} }
+    </style>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#bg2)"/>
+  <rect width="200" height="200" rx="32" fill="none" stroke="#66BB6A" stroke-width="2.5" opacity="0.4"/>
+  <!-- Basket -->
+  <ellipse cx="100" cy="168" rx="38" ry="12" fill="#8D6E63"/>
+  <path d="M62 155 Q100 175 138 155 Q138 168 100 175 Q62 168 62 155Z" fill="#A1887F"/>
+  <path d="M62 155 Q100 145 138 155" fill="none" stroke="#6D4C41" stroke-width="2"/>
+  <!-- Snake body coiled -->
+  <g class="snake">
+    <ellipse cx="100" cy="148" rx="28" ry="10" fill="#558B2F" opacity="0.4"/>
+    <path d="M72 148 Q85 138 100 148 Q115 158 128 148" fill="none" stroke="#558B2F" stroke-width="10" stroke-linecap="round"/>
+    <path d="M100 148 Q90 130 100 115" fill="none" stroke="#558B2F" stroke-width="9" stroke-linecap="round"/>
+    <!-- Scales pattern -->
+    <path d="M72 148 Q85 138 100 148 Q115 158 128 148" fill="none" stroke="#33691E" stroke-width="2" stroke-dasharray="6 4"/>
+  </g>
+  <!-- Snake head -->
+  <g class="snakeHead">
+    <g class="hood">
+      <ellipse cx="100" cy="60" rx="25" ry="18" fill="#7CB342" opacity="0.9"/>
+      <ellipse cx="100" cy="60" rx="18" ry="13" fill="#558B2F"/>
+      <!-- Hood pattern -->
+      <path d="M90 52 Q100 65 110 52" fill="#33691E" opacity="0.5"/>
+    </g>
+    <ellipse cx="100" cy="72" rx="12" ry="10" fill="#558B2F"/>
+    <!-- Eyes -->
+    <circle cx="94" cy="68" r="4" fill="#FFD54F"/>
+    <circle cx="94" cy="68" r="2.5" fill="#1A237E"/>
+    <circle cx="106" cy="68" r="4" fill="#FFD54F"/>
+    <circle cx="106" cy="68" r="2.5" fill="#1A237E"/>
+    <!-- Tongue -->
+    <g class="tongue">
+      <line x1="100" y1="78" x2="100" y2="88" stroke="#F44336" stroke-width="2"/>
+      <line x1="100" y1="88" x2="94" y2="94" stroke="#F44336" stroke-width="2"/>
+      <line x1="100" y1="88" x2="106" y2="94" stroke="#F44336" stroke-width="2"/>
+    </g>
+  </g>
+  <!-- Sapera (snake charmer) sitting -->
+  <g class="sapera">
+    <!-- Turban -->
+    <ellipse cx="100" cy="105" rx="16" ry="10" fill="#FF7043"/>
+    <circle cx="100" cy="103" r="12" fill="#FF8A65"/>
+    <path d="M84 105 Q100 95 116 105" fill="#FF7043"/>
+    <!-- Face -->
+    <circle cx="100" cy="118" r="10" fill="#FFCC80"/>
+    <circle cx="96" cy="116" r="2" fill="#5D4037"/>
+    <circle cx="104" cy="116" r="2" fill="#5D4037"/>
+    <path d="M96 122 Q100 125 104 122" fill="none" stroke="#5D4037" stroke-width="1.5"/>
+    <!-- Body -->
+    <path d="M90 128 Q100 140 110 128 L108 155 L92 155 Z" fill="#FF7043"/>
+    <!-- Flute -->
+    <g class="flute">
+      <rect x="78" y="120" width="44" height="5" rx="2.5" fill="#8D6E63"/>
+      <circle cx="86" cy="122" r="1.5" fill="#5D4037"/>
+      <circle cx="93" cy="122" r="1.5" fill="#5D4037"/>
+      <circle cx="100" cy="122" r="1.5" fill="#5D4037"/>
+      <circle cx="107" cy="122" r="1.5" fill="#5D4037"/>
+    </g>
+  </g>
+  <text x="100" y="192" text-anchor="middle" font-size="18" font-family="Mukta,sans-serif" fill="#2E7D32" font-weight="800">सपेरा</text>
+</svg>

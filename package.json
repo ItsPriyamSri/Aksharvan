@@ -9,7 +9,11 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "preview": "npx serve out",
-    "generate-audio": "node scripts/generate-audio.js"
+    "generate-audio": "node scripts/generate-audio.js",
+    "appwrite:provision": "node scripts/provision-appwrite.mjs",
+    "appwrite:link": "node scripts/link-appwrite-project.mjs",
+    "appwrite:push": "appwrite push all",
+    "appwrite:deploy": "appwrite push functions"
   },
   "dependencies": {
     "appwrite": "^16.0.0",
@@ -26,6 +30,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "appwrite-cli": "^22.0.0",
     "autoprefixer": "^10",
     "eslint": "^8",
     "eslint-config-next": "14.2.0",

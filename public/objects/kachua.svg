@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .turtle { animation: walk 1.5s ease-in-out infinite; transform-origin: 100px 120px; }
+      .head { animation: headPeek 3s ease-in-out infinite; transform-origin: 140px 105px; }
+      .legFL { animation: legSwing 1.5s ease-in-out infinite 0s; transform-origin: 75px 130px; }
+      .legFR { animation: legSwing 1.5s ease-in-out infinite 0.375s; transform-origin: 125px 130px; }
+      .legBL { animation: legSwing 1.5s ease-in-out infinite 0.75s; transform-origin: 72px 140px; }
+      .legBR { animation: legSwing 1.5s ease-in-out infinite 1.125s; transform-origin: 128px 140px; }
+      @keyframes walk { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+      @keyframes headPeek { 0%,100%{transform:translateX(0)} 50%{transform:translateX(5px)} }
+      @keyframes legSwing { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(15deg)} }
+    </style>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="rgba(46,125,91,0.12)"/>
+  <rect width="200" height="200" rx="32" fill="none" stroke="#2E7D5B" stroke-width="2.5" opacity="0.4"/>
+  <g class="turtle">
+    <!-- Legs -->
+    <g class="legBL"><ellipse cx="72" cy="145" rx="14" ry="8" fill="#558B2F" transform="rotate(-30 72 145)"/></g>
+    <g class="legBR"><ellipse cx="128" cy="145" rx="14" ry="8" fill="#558B2F" transform="rotate(30 128 145)"/></g>
+    <g class="legFL"><ellipse cx="72" cy="125" rx="14" ry="8" fill="#558B2F" transform="rotate(30 72 125)"/></g>
+    <g class="legFR"><ellipse cx="128" cy="125" rx="14" ry="8" fill="#558B2F" transform="rotate(-30 128 125)"/></g>
+    <!-- Shell -->
+    <ellipse cx="100" cy="128" rx="46" ry="35" fill="#558B2F"/>
+    <ellipse cx="100" cy="125" rx="44" ry="32" fill="#33691E"/>
+    <!-- Shell pattern -->
+    <ellipse cx="100" cy="120" rx="18" ry="15" fill="#558B2F" stroke="#33691E" stroke-width="1.5"/>
+    <ellipse cx="78" cy="118" rx="12" ry="10" fill="#558B2F" stroke="#33691E" stroke-width="1.5"/>
+    <ellipse cx="122" cy="118" rx="12" ry="10" fill="#558B2F" stroke="#33691E" stroke-width="1.5"/>
+    <ellipse cx="87" cy="135" rx="12" ry="10" fill="#558B2F" stroke="#33691E" stroke-width="1.5"/>
+    <ellipse cx="113" cy="135" rx="12" ry="10" fill="#558B2F" stroke="#33691E" stroke-width="1.5"/>
+    <!-- Tail -->
+    <path d="M58 132 Q45 138 42 148" fill="none" stroke="#558B2F" stroke-width="6" stroke-linecap="round"/>
+    <!-- Head -->
+    <g class="head">
+      <ellipse cx="143" cy="108" rx="16" ry="13" fill="#7CB342"/>
+      <circle cx="148" cy="104" r="3.5" fill="white"/>
+      <circle cx="149" cy="104" r="2" fill="#1A1A2E"/>
+      <circle cx="150" cy="103" r="0.8" fill="white"/>
+      <path d="M138 113 Q143 118 150 113" fill="none" stroke="#558B2F" stroke-width="1.5"/>
+      <!-- Neck -->
+      <rect x="126" y="108" width="16" height="10" rx="5" fill="#8BC34A"/>
+    </g>
+  </g>
+  <text x="100" y="194" text-anchor="middle" font-size="18" font-family="Mukta,sans-serif" fill="#1B5E20" font-weight="800">कछुआ</text>
+</svg>

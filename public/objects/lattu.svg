@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .top { animation: spin 0.4s linear infinite; transform-origin: 100px 110px; }
+      .shadow { animation: shadowPulse 0.4s linear infinite; }
+      @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      @keyframes shadowPulse { 0%,100%{rx:25} 50%{rx:22} }
+    </style>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="rgba(255,112,67,0.12)"/>
+  <rect width="200" height="200" rx="32" fill="none" stroke="#FF7043" stroke-width="2.5" opacity="0.4"/>
+  <ellipse class="shadow" cx="100" cy="158" rx="25" ry="8" fill="#FF7043" opacity="0.2"/>
+  <g class="top">
+    <path d="M100 155 L60 75 Q100 55 140 75 Z" fill="#FF7043"/>
+    <path d="M100 155 L60 75 Q80 65 100 65 Z" fill="#FF8A65"/>
+    <path d="M100 155 L100 65 Q120 65 140 75 Z" fill="#E64A19"/>
+    <ellipse cx="100" cy="68" rx="40" ry="15" fill="#FF7043"/>
+    <ellipse cx="100" cy="65" rx="38" ry="13" fill="#FFCCBC"/>
+    <!-- Stripe decorations -->
+    <path d="M65 95 Q100 88 135 95" fill="none" stroke="#FFCCBC" stroke-width="3" opacity="0.6"/>
+    <path d="M62 115 Q100 108 138 115" fill="none" stroke="#FFCCBC" stroke-width="3" opacity="0.6"/>
+    <path d="M65 135 Q100 128 135 135" fill="none" stroke="#FFCCBC" stroke-width="3" opacity="0.6"/>
+    <!-- Tip -->
+    <circle cx="100" cy="155" r="5" fill="#BF360C"/>
+    <!-- String -->
+    <path d="M72 80 Q60 60 55 45" fill="none" stroke="#795548" stroke-width="2" stroke-dasharray="4 3" opacity="0.6"/>
+  </g>
+  <text x="100" y="194" text-anchor="middle" font-size="18" font-family="Mukta,sans-serif" fill="#BF360C" font-weight="800">लट्टू</text>
+</svg>

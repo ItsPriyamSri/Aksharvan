@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="60%" r="70%">
+      <stop offset="0%" stop-color="#B3E5FC" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0288D1" stop-opacity="0.08"/>
+    </radialGradient>
+    <style>
+      .body { animation: bodyBob 1.2s ease-in-out infinite; transform-origin: 100px 120px; }
+      .head { animation: headBob 1.2s ease-in-out infinite 0.1s; transform-origin: 130px 80px; }
+      .beak { animation: beakOpen 1.2s ease-in-out infinite; transform-origin: 148px 88px; }
+      .wingL { animation: wingFlap 1.2s ease-in-out infinite 0.15s; transform-origin: 80px 110px; }
+      .ripple1 { animation: ripple 2s ease-out infinite 0.5s; }
+      .ripple2 { animation: ripple 2s ease-out infinite 1.2s; }
+      @keyframes bodyBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+      @keyframes headBob { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(-8deg)} }
+      @keyframes beakOpen { 0%,40%,100%{transform:scaleY(1)} 20%{transform:scaleY(1.8)} }
+      @keyframes wingFlap { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(-15deg)} }
+      @keyframes ripple { 0%{r:20;opacity:0.5} 100%{r:45;opacity:0} }
+    </style>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="url(#bg)"/>
+  <rect width="200" height="200" rx="32" fill="none" stroke="#29B6F6" stroke-width="2.5" opacity="0.4"/>
+  <!-- Water -->
+  <ellipse cx="100" cy="155" rx="55" ry="12" fill="#29B6F6" opacity="0.25"/>
+  <circle class="ripple1" cx="75" cy="158" r="20" fill="none" stroke="#29B6F6" stroke-width="1.5" opacity="0.4"/>
+  <circle class="ripple2" cx="125" cy="158" r="20" fill="none" stroke="#29B6F6" stroke-width="1.5" opacity="0.3"/>
+  <!-- Body -->
+  <g class="body">
+    <ellipse cx="100" cy="125" rx="38" ry="30" fill="#FFF176"/>
+    <ellipse cx="100" cy="135" rx="38" ry="20" fill="#F9A825" opacity="0.6"/>
+    <!-- Tail feathers -->
+    <ellipse cx="68" cy="118" rx="12" ry="7" fill="#F9A825" transform="rotate(-30 68 118)"/>
+    <!-- Wing left -->
+    <g class="wingL">
+      <ellipse cx="78" cy="118" rx="20" ry="10" fill="#FFE082" transform="rotate(-20 78 118)"/>
+    </g>
+    <!-- Wing right -->
+    <ellipse cx="122" cy="118" rx="20" ry="10" fill="#FFE082" transform="rotate(20 122 118)"/>
+    <!-- Neck -->
+    <ellipse cx="118" cy="100" rx="12" ry="20" fill="#1B5E20"/>
+    <!-- Head -->
+    <g class="head">
+      <circle cx="130" cy="78" r="20" fill="#1B5E20"/>
+      <!-- Eye -->
+      <circle cx="136" cy="73" r="4" fill="white"/>
+      <circle cx="137" cy="73" r="2.5" fill="#111"/>
+      <circle cx="138" cy="72" r="1" fill="white"/>
+      <!-- White cheek -->
+      <ellipse cx="123" cy="80" rx="5" ry="4" fill="white" opacity="0.6"/>
+      <!-- Beak -->
+      <g class="beak">
+        <path d="M148 84 L162 82 L162 88 L148 92 Z" fill="#FF8F00"/>
+        <line x1="148" y1="88" x2="162" y2="85" stroke="#E65100" stroke-width="1.5"/>
+      </g>
+    </g>
+    <!-- Feet -->
+    <path d="M88 148 L82 158 L96 158" fill="none" stroke="#FF8F00" stroke-width="3" stroke-linecap="round"/>
+    <path d="M112 148 L106 158 L120 158" fill="none" stroke="#FF8F00" stroke-width="3" stroke-linecap="round"/>
+  </g>
+  <!-- Label -->
+  <text x="100" y="185" text-anchor="middle" font-size="18" font-family="Mukta,sans-serif" fill="#0288D1" font-weight="800">बतख</text>
+</svg>

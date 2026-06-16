@@ -1,0 +1,27 @@
+{
+  "_comment": "Sarvam Bulbul v3 speakers for Aksharvan — Tina = warm girl, Toto = playful boy. Used by scripts/generate-audio.js.",
+  "model": "bulbul:v3",
+  "target_language_code": "hi-IN",
+  "speech_sample_rate": 24000,
+  "enable_preprocessing": true,
+  "voices": {
+    "tina": {
+      "speaker": "priya",
+      "pace": 0.86,
+      "note": "Warm, clear female — child-directed Hindi"
+    },
+    "toto": {
+      "speaker": "aayan",
+      "pace": 0.9,
+      "note": "Playful younger male — child-directed Hindi"
+    },
+    "default": {
+      "speaker": "priya",
+      "pace": 0.88
+    }
+  },
+  "browserTtsFallback": {
+    "tina": { "pitch": 1.12, "rate": 0.88 },
+    "toto": { "pitch": 0.88, "rate": 0.92 }
+  }
+}

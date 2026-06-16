@@ -25,13 +25,16 @@
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { Client, Storage, ID } from 'node-appwrite';
+import { Client, Storage } from 'node-appwrite';
+import { loadEnvLocal } from './load-env-local.mjs';
+
+loadEnvLocal();
 
 const __dirname  = dirname(fileURLToPath(import.meta.url));
 const ROOT       = resolve(__dirname, '..');
 const MANIFEST   = resolve(ROOT, 'lib/content/narration-manifest.json');
+const VOICE_CFG  = JSON.parse(readFileSync(resolve(ROOT, 'lib/content/sarvam-voices.json'), 'utf8'));
 const BUCKET_ID  = 'audio';
-const LANG       = 'hi-IN';
 
 const args     = process.argv.slice(2);
 const FORCE    = args.includes('--force');
@@ -112,37 +115,34 @@ function loadAndValidateManifest() {
  */
 async function callSarvam(text, voice) {
   const apiKey = process.env.SARVAM_API_KEY;
-  if (!apiKey) throw new Error('SARVAM_API_KEY is not set');
+  if (!apiKey) throw new Error('SARVAM_API_KEY is not set in .env.local');
 
-  // Sarvam voice IDs — adjust if the model naming changes
-  const voiceId = voice === 'tina' ? 'meera' : voice === 'toto' ? 'arjun' : 'meera';
+  const profile = VOICE_CFG.voices[voice] ?? VOICE_CFG.voices.default;
+  const model = VOICE_CFG.model ?? 'bulbul:v3';
 
   const response = await fetch('https://api.sarvam.ai/text-to-speech', {
     method:  'POST',
     headers: {
-      'Content-Type':          'application/json',
-      'api-subscription-key':  apiKey,
+      'Content-Type':         'application/json',
+      'api-subscription-key': apiKey,
     },
     body: JSON.stringify({
-      inputs:        [text],
-      target_language_code: LANG,
-      speaker:       voiceId,
-      pitch:         0,
-      pace:          0.9,
-      loudness:      1.0,
-      speech_sample_rate: 22050,
-      enable_preprocessing: true,
-      model: 'bulbul:v1',
+      inputs:               [text],
+      target_language_code: VOICE_CFG.target_language_code ?? 'hi-IN',
+      speaker:              profile.speaker,
+      pace:                 profile.pace,
+      speech_sample_rate:   VOICE_CFG.speech_sample_rate ?? 24000,
+      enable_preprocessing: VOICE_CFG.enable_preprocessing ?? true,
+      model,
     }),
   });
 
   if (!response.ok) {
     const body = await response.text().catch(() => '');
-    throw new Error(`Sarvam TTS HTTP ${response.status}: ${body.slice(0, 200)}`);
+    throw new Error(`Sarvam TTS HTTP ${response.status}: ${body.slice(0, 300)}`);
   }
 
   const data = await response.json();
-  // Sarvam returns base64 WAV in data.audios[0]
   const b64 = data.audios?.[0];
   if (!b64) throw new Error('Sarvam TTS returned no audio data');
   return Buffer.from(b64, 'base64');
@@ -265,8 +265,15 @@ async function uploadFile(storage, audioName, audioBuffer, mimeType) {
 // Main
 // ---------------------------------------------------------------------------
 
+function profileLabel(voice) {
+  const p = VOICE_CFG.voices[voice] ?? VOICE_CFG.voices.default;
+  return `${p.speaker} pace=${p.pace}`;
+}
+
 async function main() {
   console.log('Aksharvan TTS pipeline');
+  console.log(`Model: ${VOICE_CFG.model}`);
+  console.log(`Tina → ${VOICE_CFG.voices.tina.speaker}, Toto → ${VOICE_CFG.voices.toto.speaker}`);
   console.log(`Manifest: ${MANIFEST}`);
   if (DRY_RUN) console.log('Mode: DRY RUN (no API calls, no uploads)');
   if (FORCE)   console.log('Mode: --force (regenerate all files)');
@@ -301,6 +308,8 @@ async function main() {
   let uploaded = 0;
   let errors   = 0;
 
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
   for (const entry of entries) {
     const { audioName, text, voice } = entry;
 
@@ -314,12 +323,11 @@ async function main() {
     process.stdout.write(`  gen   ${audioName} ...`);
     try {
       const audioBuffer = await generateAudio(text, voice);
-      // Provider returns WAV; upload as-is (the audio bucket accepts common formats)
-      // For production: pipe through ffmpeg to compress to mono Opus ~28kbps
-      const mimeType = process.env.SARVAM_API_KEY ? 'audio/wav' : 'audio/mpeg';
+      const mimeType = 'audio/wav';
       await uploadFile(storage, audioName, audioBuffer, mimeType);
-      process.stdout.write(` ✓ (${audioBuffer.length} bytes)\n`);
+      process.stdout.write(` ✓ (${profileLabel(voice)}, ${audioBuffer.length} bytes)\n`);
       uploaded++;
+      await sleep(250);
     } catch (err) {
       process.stdout.write(` ✗\n`);
       console.error(`    Error: ${err.message}`);

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .rope { animation: ropeSwing 2s ease-in-out infinite; transform-origin: 100px 60px; }
+      @keyframes ropeSwing { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg)} }
+    </style>
+  </defs>
+  <rect width="200" height="200" rx="32" fill="rgba(161,136,127,0.15)"/>
+  <rect width="200" height="200" rx="32" fill="none" stroke="#8D6E63" stroke-width="2.5" opacity="0.4"/>
+  <g class="rope">
+    <path d="M80 50 Q75 80 85 110 Q95 140 80 165" fill="none" stroke="#8D6E63" stroke-width="8" stroke-linecap="round"/>
+    <path d="M100 50 Q95 80 105 110 Q115 140 100 165" fill="none" stroke="#A1887F" stroke-width="8" stroke-linecap="round"/>
+    <path d="M120 50 Q115 80 125 110 Q135 140 120 165" fill="none" stroke="#795548" stroke-width="8" stroke-linecap="round"/>
+    <path d="M78 58 L122 58" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>
+    <path d="M81 90 L119 90" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>
+    <path d="M84 122 L116 122" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>
+    <path d="M80 153 L120 153" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/>
+    <path d="M78 50 Q100 44 122 50" stroke="#6D4C41" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M80 165 Q100 172 120 165" stroke="#6D4C41" stroke-width="5" stroke-linecap="round" fill="none"/>
+  </g>
+  <text x="100" y="194" text-anchor="middle" font-size="18" font-family="Mukta,sans-serif" fill="#5D4037" font-weight="800">रस्सी</text>
+</svg>
