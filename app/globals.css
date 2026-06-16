@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-twilight: #20243F;
+  --bg-forest-dark: #16241C;
+  --surface: #FFF7E8;
+  --forest: #2E7D5B;
+  --forest-deep: #1F5C44;
+  --magic: #6B4E9E;
+  --firefly: #FFC84A;
+  --firefly-glow: #FFE08A;
+  --tina: #F2789A;
+  --toto: #4FB0E0;
+  --success: #4CAF7D;
+  --ink: #2A2435;
+}
+
+body {
+  background-color: var(--bg-twilight);
+  color: var(--ink);
+  font-family: var(--font-mukta), sans-serif;
+}
