@@ -3,13 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { recognizeSpeech } from "@/lib/appwrite/functions";
 import { matchTranscript } from "@/lib/speech/match";
-import {
-  blobToBase64,
-  getMicStream,
-  releaseMicStream,
-  recordAudioFromStream,
-  type MicStream,
-} from "@/lib/speech/mic";
+import { blobToBase64, recordAudio, requestMicPermission } from "@/lib/speech/mic";
 
 type SpeechCallback = (matched: boolean, transcript: string, matchedOption?: string) => void;
 
@@ -26,9 +20,8 @@ export type SpeechState = {
   stopListening: () => void;
 };
 
-const LISTEN_TIMEOUT_MS = 7000;
-const MIN_LISTEN_MS = 900;
-const MIN_BLOB_BYTES = 200;
+const LISTEN_TIMEOUT_MS = 8000;
+const MIN_LISTEN_MS = 800;
 
 const APPWRITE_CONFIGURED =
   typeof process !== "undefined"
@@ -64,11 +57,10 @@ export function useSpeechRecognition(): SpeechState {
   const timeoutRef     = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionRef     = useRef(0);
   const startedAtRef   = useRef(0);
-  const streamRef      = useRef<MicStream | null>(null);
-  const endRetryRef    = useRef(0);
 
   const webSpeechAvailable = hasWebSpeech();
   const recorderAvailable  = hasMediaRecorder();
+  /** Sarvam ASR via Appwrite — no Google cloud; works in Chromium/Firefox. */
   const canUseServerAsr    = APPWRITE_CONFIGURED && recorderAvailable;
   const isSupported        = canUseServerAsr || webSpeechAvailable;
   const canUseServerAsrRef = useRef(canUseServerAsr);
@@ -81,84 +73,52 @@ export function useSpeechRecognition(): SpeechState {
     }
   };
 
-  const releaseStream = useCallback(() => {
-    releaseMicStream(streamRef.current);
-    streamRef.current = null;
-  }, []);
-
   const deliverResult = useCallback((session: number, matched: boolean, text: string, option?: string) => {
     if (session !== sessionRef.current) return;
     if (gotResultRef.current) return;
     gotResultRef.current = true;
     clearTimeoutRef();
-    releaseStream();
     setIsProcessing(false);
     setIsListening(false);
     const cb = callbackRef.current;
     callbackRef.current = null;
     cb?.(matched, text, option);
-  }, [releaseStream]);
+  }, []);
 
   const stopListening = useCallback(() => {
     sessionRef.current += 1;
     clearTimeoutRef();
     callbackRef.current = null;
     gotResultRef.current = true;
-    endRetryRef.current = 0;
     if (recognitionRef.current) {
       try { recognitionRef.current.abort(); } catch { /* ignore */ }
       recognitionRef.current = null;
     }
-    releaseStream();
     setIsListening(false);
     setIsProcessing(false);
-  }, [releaseStream]);
-
-  const ensureStream = useCallback(async (session: number): Promise<MicStream | null> => {
-    if (session !== sessionRef.current) return null;
-    if (streamRef.current?.active) return streamRef.current;
-    try {
-      const stream = await getMicStream();
-      if (session !== sessionRef.current) {
-        releaseMicStream(stream);
-        return null;
-      }
-      streamRef.current = stream;
-      return stream;
-    } catch {
-      return null;
-    }
   }, []);
 
-  const runRecorderAsr = useCallback(async (session: number, attempt = 0): Promise<boolean> => {
+  const runRecorderAsr = useCallback(async (session: number): Promise<boolean> => {
     if (session !== sessionRef.current) return false;
 
     setInputMode("recorder");
     setIsListening(true);
     setIsProcessing(false);
     setError(null);
+    setTranscript("");
 
     try {
-      const stream = await ensureStream(session);
-      if (!stream) {
+      const micOk = await requestMicPermission();
+      if (!micOk || session !== sessionRef.current) {
         setError("माइक्रोफ़ोन की अनुमति चाहिए");
         deliverResult(session, false, "");
         return false;
       }
 
-      const { blob, mimeType } = await recordAudioFromStream(stream, {
-        maxMs: LISTEN_TIMEOUT_MS,
-        minMs: 500,
-        silenceMs: 1300,
-      });
-
+      const { blob, mimeType } = await recordAudio(LISTEN_TIMEOUT_MS);
       if (session !== sessionRef.current) return false;
 
-      if (blob.size < MIN_BLOB_BYTES) {
-        if (attempt < 1) {
-          gotResultRef.current = false;
-          return runRecorderAsr(session, attempt + 1);
-        }
+      if (blob.size < 500) {
         setError("कुछ सुनाई नहीं दिया — फिर से बोलो");
         deliverResult(session, false, "");
         return false;
@@ -199,14 +159,9 @@ export function useSpeechRecognition(): SpeechState {
       return true;
     } catch {
       if (session !== sessionRef.current) return false;
-      if (attempt < 1) {
-        gotResultRef.current = false;
-        releaseStream();
-        return runRecorderAsr(session, attempt + 1);
-      }
       return false;
     }
-  }, [deliverResult, ensureStream, releaseStream]);
+  }, [deliverResult]);
 
   const startWebSpeech = useCallback((session: number, onAsrFallback?: () => void): boolean => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -215,13 +170,12 @@ export function useSpeechRecognition(): SpeechState {
     if (!API) return false;
 
     setInputMode("webspeech");
-    endRetryRef.current = 0;
 
     const recognition = new API();
     recognition.lang = "hi-IN";
     recognition.interimResults = true;
     recognition.maxAlternatives = 5;
-    recognition.continuous = false;
+    recognition.continuous = true;
 
     recognition.onstart = () => {
       if (session !== sessionRef.current) return;
@@ -283,9 +237,7 @@ export function useSpeechRecognition(): SpeechState {
 
       const elapsed = Date.now() - startedAtRef.current;
 
-      if (event.error === "no-speech" && elapsed < MIN_LISTEN_MS && endRetryRef.current < 2) {
-        endRetryRef.current += 1;
-        gotResultRef.current = false;
+      if (event.error === "no-speech" && elapsed < MIN_LISTEN_MS) {
         try { recognition.start(); } catch { /* ignore */ }
         return;
       }
@@ -303,7 +255,7 @@ export function useSpeechRecognition(): SpeechState {
       } else if (event.error === "not-allowed") {
         setError("माइक्रोफ़ोन की अनुमति चाहिए");
       } else if (event.error === "network") {
-        setError("आवाज़ सेवा नहीं मिली — फिर माइक दबाएँ");
+        setError("Google आवाज़ सेवा नहीं मिली — Sarvam ASR चालू करें");
       } else {
         setError("आवाज़ नहीं पहचानी — फिर कोशिश करो");
       }
@@ -317,9 +269,7 @@ export function useSpeechRecognition(): SpeechState {
       if (gotResultRef.current) return;
 
       const elapsed = Date.now() - startedAtRef.current;
-      if (elapsed < MIN_LISTEN_MS && endRetryRef.current < 2) {
-        endRetryRef.current += 1;
-        gotResultRef.current = false;
+      if (elapsed < MIN_LISTEN_MS) {
         try { recognition.start(); } catch { /* ignore */ }
         return;
       }
@@ -353,17 +303,13 @@ export function useSpeechRecognition(): SpeechState {
       try { recognitionRef.current.abort(); } catch { /* ignore */ }
       recognitionRef.current = null;
     }
-    releaseStream();
 
     callbackRef.current = onResult;
     optionsRef.current = expectedOptions;
     exerciseIdRef.current = exerciseId;
     gotResultRef.current = false;
-    endRetryRef.current = 0;
     setError(null);
     setTranscript("");
-    setIsListening(true);
-    setIsProcessing(false);
 
     const tryAsr = () => {
       gotResultRef.current = false;
@@ -382,16 +328,16 @@ export function useSpeechRecognition(): SpeechState {
     };
 
     void (async () => {
-      const stream = await ensureStream(session);
+      const micOk = await requestMicPermission();
       if (session !== sessionRef.current) return;
 
-      if (!stream) {
-        setIsListening(false);
+      if (!micOk) {
         setError("माइक्रोफ़ोन की अनुमति चाहिए");
         deliverResult(session, false, "");
         return;
       }
 
+      // Prefer Sarvam ASR — no Google dependency (fixes Chromium "network" errors).
       if (canUseServerAsr) {
         tryAsr();
         return;
@@ -402,7 +348,6 @@ export function useSpeechRecognition(): SpeechState {
         if (started) return;
       }
 
-      setIsListening(false);
       setError("माइक शुरू नहीं हो सका — फिर दबाएँ");
       deliverResult(session, false, "");
     })();
@@ -413,8 +358,6 @@ export function useSpeechRecognition(): SpeechState {
     runRecorderAsr,
     startWebSpeech,
     deliverResult,
-    ensureStream,
-    releaseStream,
   ]);
 
   return {

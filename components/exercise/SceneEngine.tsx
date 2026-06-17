@@ -368,13 +368,11 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
   const correctAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isListeningRef  = useRef(false);
-  const isProcessingRef = useRef(false);
 
   sceneStateRef.current = sceneState;
   sceneIdxRef.current   = sceneIdx;
   isPlayingRef.current  = isPlaying;
   isListeningRef.current = isListening;
-  isProcessingRef.current = isProcessing;
 
   const sceneType   = SCENE_ORDER[sceneIdx];
   const bgStyle     = FOREST_BG[Math.min(restoreLevel, FOREST_BG.length - 1)];
@@ -544,7 +542,7 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
   handleWrongRef.current   = handleWrong;
   voiceTriggerRef.current  = () => {
     if (sceneStateRef.current === "correct") return;
-    if (isListeningRef.current || isProcessingRef.current) return;
+    if (isListeningRef.current) return;
 
     clearArmTimers();
     stopNarration();
@@ -566,7 +564,7 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
 
         if (!text && !matched) {
           setSceneState("intro");
-          setMicState("error");
+          setMicState("idle");
           return;
         }
 
@@ -613,7 +611,7 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
   }, [sceneIdx]);
 
   const handleMicTap = () => {
-    if (isListening || isProcessing) {
+    if (isListening) {
       stopListening();
       setSceneState("intro");
       setMicState("idle");
@@ -636,7 +634,7 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
 
       if (!text && !matched) {
         setSceneState("intro");
-        setMicState("error");
+        setMicState("idle");
         return;
       }
 
@@ -781,7 +779,7 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
         {VOICE_SCENES.has(sceneType) && sceneState !== "correct" && (
           <div className="flex flex-col items-center gap-3 pb-2">
             <BigMicButton state={micState} onTap={handleMicTap} />
-            {transcript && (isListening || isProcessing) && (
+            {transcript && isListening && (
               <p className="font-body text-xs text-center px-4 akshar" style={{ color: "rgba(255,248,237,0.7)" }}>
                 सुना: {transcript}
               </p>
