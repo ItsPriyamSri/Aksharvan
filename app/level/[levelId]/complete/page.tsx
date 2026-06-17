@@ -1,13 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { useRouteGuard }    from "@/hooks/useRouteGuard";
 import { useProgress }      from "@/contexts/ProgressContext";
+import { useNarration }     from "@/hooks/useNarration";
+import { useAudio }         from "@/contexts/AudioContext";
 import { getLevel, DEFAULT_LEVEL_ID } from "@/lib/content/registry";
+import { LEVEL_COMPLETE_DIALOGUE } from "@/lib/content/audio-resolver";
 import CharacterDisplay     from "@/components/characters/CharacterDisplay";
 import LoadingScreen        from "@/components/ui/LoadingScreen";
+import type { SpeakerCharacter } from "@/types/audio";
 
 const STAGES = [
   { s:0, label:"रंग वापस आए",        emoji:"🎨", color:"var(--magic)" },
@@ -24,11 +28,38 @@ export default function CompletePage() {
   const router = useRouter();
   const { isChecking } = useRouteGuard({ mode:"require-auth" });
   const { progress } = useProgress();
+  const { narrate, stop } = useNarration();
+  const { unlockAudio } = useAudio();
+  const [speakingChar, setSpeakingChar] = useState<SpeakerCharacter | null>("tina");
+  const lineIdxRef = useRef(0);
+
   const levelId = params?.levelId??DEFAULT_LEVEL_ID;
   const level   = getLevel(levelId);
   const stage   = Math.min(progress?.restorationStage??0, STAGES.length-1);
   const curr    = STAGES[stage];
   const allDone = progress?.sublevels.every(sl=>sl.status==="completed")??false;
+
+  useEffect(() => {
+    unlockAudio();
+    lineIdxRef.current = 0;
+    setSpeakingChar("tina");
+
+    const speakNext = () => {
+      const idx = lineIdxRef.current;
+      if (idx >= LEVEL_COMPLETE_DIALOGUE.length) {
+        setSpeakingChar(null);
+        return;
+      }
+      const line = LEVEL_COMPLETE_DIALOGUE[idx];
+      lineIdxRef.current = idx + 1;
+      setSpeakingChar(line.speaker);
+      narrate(line.audioId, line.textHi, line.speaker, speakNext);
+    };
+
+    speakNext();
+    return () => stop();
+  }, [narrate, stop, unlockAudio]);
+
   if (isChecking) return <LoadingScreen />;
 
   const STARS = [[5,3],[20,8],[38,5],[58,2],[72,9],[88,6],[12,18],[50,14],[80,11]];
@@ -89,8 +120,21 @@ export default function CompletePage() {
         {/* Characters */}
         <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:0.55}}
           className="flex gap-6 justify-center">
-          <CharacterDisplay character="tina" isActive isSpeaking dialogue={level?.feedback.correct[2]??"कमाल!"} size="md"/>
-          <CharacterDisplay character="toto" isActive={false} size="md" flip dialogue="बहुत बढ़िया!"/>
+          <CharacterDisplay
+            character="tina"
+            isActive={speakingChar === "tina"}
+            isSpeaking={speakingChar === "tina"}
+            dialogue={LEVEL_COMPLETE_DIALOGUE[0].textHi}
+            size="md"
+          />
+          <CharacterDisplay
+            character="toto"
+            isActive={speakingChar === "toto"}
+            isSpeaking={speakingChar === "toto"}
+            flip
+            dialogue={LEVEL_COMPLETE_DIALOGUE[1].textHi}
+            size="md"
+          />
         </motion.div>
 
         {/* Buttons */}

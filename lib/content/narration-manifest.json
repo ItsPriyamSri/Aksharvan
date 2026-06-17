@@ -434,6 +434,12 @@
       "category": "cutscene"
     },
     {
+      "audioName": "level_complete_kamaal__tina",
+      "text": "कमाल कर दिया!",
+      "voice": "tina",
+      "category": "cutscene"
+    },
+    {
       "audioName": "story_hook_tina",
       "text": "जंगल को बचाने के लिए कुछ सवालों के जवाब दो!",
       "voice": "tina",

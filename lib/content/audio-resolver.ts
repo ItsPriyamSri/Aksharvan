@@ -96,3 +96,9 @@ const RESTORE_LINES: { audioId: string; textHi: string }[] = [
 export function getRestoreLine(completedSublevelIndex: number): { audioId: string; textHi: string } | null {
   return RESTORE_LINES[completedSublevelIndex] ?? null;
 }
+
+/** End-of-level celebration — Tina then Toto on the complete screen. */
+export const LEVEL_COMPLETE_DIALOGUE: { speaker: SpeakerCharacter; audioId: string; textHi: string }[] = [
+  { speaker: "tina", audioId: "level_complete_kamaal__tina", textHi: "कमाल कर दिया!" },
+  { speaker: "toto", audioId: "encourage_bahut_badhiya__toto", textHi: "बहुत बढ़िया!" },
+];
