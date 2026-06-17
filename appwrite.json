@@ -36,7 +36,9 @@
             "$id": "asr-recognize",
             "name": "asr-recognize",
             "runtime": "node-21.0",
-            "execute": [],
+            "execute": [
+                "any"
+            ],
             "events": [],
             "schedule": "",
             "timeout": 30,

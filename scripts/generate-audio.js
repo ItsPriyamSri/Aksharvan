@@ -26,6 +26,7 @@ import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { Client, Storage } from 'node-appwrite';
+import { InputFile } from 'node-appwrite/file';
 import { loadEnvLocal } from './load-env-local.mjs';
 
 loadEnvLocal();
@@ -113,7 +114,7 @@ function loadAndValidateManifest() {
  * @param {string} voice    'tina' | 'toto' | 'default'
  * @returns {Promise<Buffer>}
  */
-async function callSarvam(text, voice) {
+async function callSarvam(text, voice, attempt = 1) {
   const apiKey = process.env.SARVAM_API_KEY;
   if (!apiKey) throw new Error('SARVAM_API_KEY is not set in .env.local');
 
@@ -136,6 +137,11 @@ async function callSarvam(text, voice) {
       model,
     }),
   });
+
+  if (response.status === 429 && attempt < 5) {
+    await new Promise((r) => setTimeout(r, 2000 * attempt));
+    return callSarvam(text, voice, attempt + 1);
+  }
 
   if (!response.ok) {
     const body = await response.text().catch(() => '');
@@ -252,13 +258,12 @@ async function fileExists(storage, audioName) {
  * @param {Buffer}  audioBuffer
  * @param {string}  mimeType
  */
-async function uploadFile(storage, audioName, audioBuffer, mimeType) {
-  const blob = new Blob([audioBuffer], { type: mimeType });
-  // Delete existing file if --force is set
+async function uploadFile(storage, audioName, audioBuffer) {
   if (FORCE) {
     try { await storage.deleteFile(BUCKET_ID, audioName); } catch { /* not found */ }
   }
-  await storage.createFile(BUCKET_ID, audioName, blob);
+  const file = InputFile.fromBuffer(audioBuffer, `${audioName}.wav`);
+  await storage.createFile(BUCKET_ID, audioName, file);
 }
 
 // ---------------------------------------------------------------------------
@@ -323,11 +328,10 @@ async function main() {
     process.stdout.write(`  gen   ${audioName} ...`);
     try {
       const audioBuffer = await generateAudio(text, voice);
-      const mimeType = 'audio/wav';
-      await uploadFile(storage, audioName, audioBuffer, mimeType);
+      await uploadFile(storage, audioName, audioBuffer);
       process.stdout.write(` ✓ (${profileLabel(voice)}, ${audioBuffer.length} bytes)\n`);
       uploaded++;
-      await sleep(250);
+      await sleep(1200);
     } catch (err) {
       process.stdout.write(` ✗\n`);
       console.error(`    Error: ${err.message}`);

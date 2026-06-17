@@ -77,9 +77,20 @@ export async function recognizeSpeech(req: AsrRequest): Promise<AsrResult> {
     JSON.stringify(req),
     false,
     "/",
-    ExecutionMethod.POST
+    ExecutionMethod.POST,
   );
 
-  const result = JSON.parse(execution.responseBody ?? "{}") as AsrResult;
+  const result = JSON.parse(execution.responseBody ?? "{}") as AsrResult & {
+    error?: string;
+    code?: string;
+  };
+
+  if (result.error) {
+    throw new Error(result.error);
+  }
+  if (typeof result.matched !== "boolean") {
+    throw new Error("asr-recognize returned an invalid response");
+  }
+
   return result;
 }

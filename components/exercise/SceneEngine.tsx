@@ -6,6 +6,7 @@ import type { Level, LetterCard } from "@/types/content";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useNarration } from "@/hooks/useNarration";
 import { useProgress } from "@/contexts/ProgressContext";
+import { useAudio } from "@/contexts/AudioContext";
 import {
   getScenePromptAudioId,
   pickPraiseAudioId,
@@ -44,7 +45,11 @@ type Props = {
 };
 
 // ── Object image ───────────────────────────────────────────
-function ObjectDisplay({ src, nameHi, large = false }: { src: string; nameHi: string; large?: boolean }) {
+function ObjectDisplay({
+  src, nameHi, large = false, onTap,
+}: {
+  src: string; nameHi: string; large?: boolean; onTap?: () => void;
+}) {
   const [failed, setFailed] = useState(false);
   const EMOJI: Record<string, string> = {
     "/objects/Battakh.JPG": "🦆", "/objects/Sapera.JPG": "🪗", "/objects/Patang.JPG": "🪁",
@@ -52,17 +57,30 @@ function ObjectDisplay({ src, nameHi, large = false }: { src: string; nameHi: st
     "/objects/Tarbooz.JPG": "🍉", "/objects/Kachhua.JPG": "🐢", "/objects/Chammach.JPG": "🥄", "/objects/Lattu.JPG": "🪀",
   };
   const size = large ? 180 : 140;
+  const inner = (
+    <>
+      {!failed
+        ? <img src={src} alt={nameHi} className="w-full h-full object-contain" onError={() => setFailed(true)} />
+        : <span style={{ fontSize: size * 0.55 }}>{EMOJI[src] ?? "❓"}</span>
+      }
+    </>
+  );
   return (
     <motion.div initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
       transition={{ type: "spring", stiffness: 280, damping: 20 }}
       className="flex flex-col items-center gap-3">
-      <div className="rounded-3xl overflow-hidden flex items-center justify-center"
-        style={{ width: size, height: size, background: "rgba(255,248,237,0.07)", border: "2px solid rgba(255,248,237,0.12)" }}>
-        {!failed
-          ? <img src={src} alt={nameHi} className="w-full h-full object-contain" onError={() => setFailed(true)} />
-          : <span style={{ fontSize: size * 0.55 }}>{EMOJI[src] ?? "❓"}</span>
-        }
-      </div>
+      {onTap ? (
+        <motion.button type="button" onClick={onTap} whileTap={{ scale: 0.94 }}
+          className="rounded-3xl overflow-hidden flex items-center justify-center"
+          style={{ width: size, height: size, background: "rgba(255,248,237,0.07)", border: "2px solid rgba(255,248,237,0.12)" }}>
+          {inner}
+        </motion.button>
+      ) : (
+        <div className="rounded-3xl overflow-hidden flex items-center justify-center"
+          style={{ width: size, height: size, background: "rgba(255,248,237,0.07)", border: "2px solid rgba(255,248,237,0.12)" }}>
+          {inner}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -71,7 +89,7 @@ function ObjectDisplay({ src, nameHi, large = false }: { src: string; nameHi: st
 function BigMicButton({ state, onTap }: { state: MicState; onTap: () => void }) {
   const cfg: Record<MicState, { bg: string; border: string; icon: string; label: string; color: string }> = {
     idle:       { bg: "rgba(255,200,74,0.15)",  border: "rgba(255,200,74,0.5)",  icon: "🎤", label: "बोलो",          color: "var(--firefly)"      },
-    auto_start: { bg: "rgba(124,92,191,0.15)",  border: "rgba(124,92,191,0.4)", icon: "🎤", label: "तैयार हो जाओ…",  color: "var(--magic-bright)" },
+    auto_start: { bg: "rgba(124,92,191,0.15)",  border: "rgba(124,92,191,0.4)", icon: "🎤", label: "माइक दबाएँ",    color: "var(--magic-bright)" },
     listening:  { bg: "rgba(124,92,191,0.25)",  border: "var(--magic)",          icon: "🔴", label: "सुन रहे हैं…",  color: "var(--magic-bright)" },
     processing: { bg: "rgba(78,205,196,0.15)",  border: "var(--toto)",           icon: "⏳", label: "समझ रहे हैं…", color: "var(--toto)"         },
     success:    { bg: "rgba(0,200,150,0.2)",    border: "var(--success)",        icon: "✅", label: "शाबाश!",        color: "var(--success)"      },
@@ -92,6 +110,32 @@ function BigMicButton({ state, onTap }: { state: MicState; onTap: () => void }) 
         <span className="text-3xl relative z-10">{c.icon}</span>
       </motion.button>
       <span className="font-display font-bold text-sm" style={{ color: c.color }}>{c.label}</span>
+    </div>
+  );
+}
+
+function AnswerChips({ options, onPick }: { options: string[]; onPick: (opt: string) => void }) {
+  const unique = Array.from(new Set(options.filter(Boolean)));
+  if (unique.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-2 justify-center max-w-xs">
+      {unique.map((opt) => (
+        <motion.button
+          key={opt}
+          type="button"
+          whileTap={{ scale: 0.92 }}
+          onClick={() => onPick(opt)}
+          className="px-5 py-2.5 rounded-2xl font-body font-bold akshar"
+          style={{
+            background: "rgba(255,248,237,0.92)",
+            color: "var(--ink)",
+            fontSize: "1.35rem",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          }}
+        >
+          {opt}
+        </motion.button>
+      ))}
     </div>
   );
 }
@@ -306,8 +350,9 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
     return result;
   }, [level, sublevelIndex]);
 
-  const { isListening, isSupported, isProcessing, startListening, stopListening } = useSpeechRecognition();
+  const { isListening, isSupported, isProcessing, transcript, error: speechErr, startListening, stopListening } = useSpeechRecognition();
   const { narrate, stop: stopNarration } = useNarration();
+  const { stopAll, isPlaying } = useAudio();
 
   const [sceneIdx,     setSceneIdx]     = useState(0);
   const [sceneState,   setSceneState]   = useState<SceneState>("intro");
@@ -315,13 +360,32 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
   const [restoreLevel, setRestoreLevel] = useState(sublevelIndex);
   const [micState,     setMicState]     = useState<MicState>("idle");
 
+  const sceneStateRef   = useRef<SceneState>("intro");
+  const sceneIdxRef     = useRef(0);
+  const answeringRef    = useRef(false);
+  const isPlayingRef    = useRef(false);
+  const armTimeoutRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isListeningRef  = useRef(false);
+
+  sceneStateRef.current = sceneState;
+  sceneIdxRef.current   = sceneIdx;
+  isPlayingRef.current  = isPlaying;
+  isListeningRef.current = isListening;
+
   const sceneType   = SCENE_ORDER[sceneIdx];
   const bgStyle     = FOREST_BG[Math.min(restoreLevel, FOREST_BG.length - 1)];
   const totalScenes = SCENE_ORDER.length;
 
   useEffect(() => {
-    if (isListening) setMicState("listening");
-    else if (isProcessing) setMicState("processing");
+    if (isListening) {
+      setSceneState("listening");
+      setMicState("listening");
+      return;
+    }
+    if (isProcessing) {
+      setMicState("processing");
+    }
   }, [isListening, isProcessing]);
 
   const handleCorrectRef = useRef<() => void>(() => {});
@@ -335,6 +399,17 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
       case "name_object2": return [obj2.nameHi];
       case "first_sound2": return [letter2.glyph, letter2.soundHi];
       case "blend":        return [word.glyph, word.roman];
+      default:             return [];
+    }
+  }, [sceneType, obj1, obj2, letter1, letter2, word]);
+
+  const getTapOptions = useCallback((): string[] => {
+    switch (sceneType) {
+      case "name_object":  return [obj1.nameHi];
+      case "name_object2": return [obj2.nameHi];
+      case "first_sound":  return [letter1.glyph, letter2.glyph];
+      case "first_sound2": return [letter2.glyph, letter1.glyph];
+      case "blend":        return [word.glyph, letter1.glyph, letter2.glyph];
       default:             return [];
     }
   }, [sceneType, obj1, obj2, letter1, letter2, word]);
@@ -364,6 +439,11 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
   const isTina = scene.speakerChar === "tina";
 
   const handleCorrect = useCallback(() => {
+    if (sceneStateRef.current === "correct") return;
+    answeringRef.current = true;
+    stopListening();
+    stopNarration();
+
     const PRAISES = ["शाबाश! 🌟", "बहुत बढ़िया! ✨", "कमाल! 🎉", "बिल्कुल सही! 💫", "वाह! 🌈"];
     const praiseText = PRAISES[Math.floor(Math.random() * PRAISES.length)];
     setFeedbackText(praiseText);
@@ -382,67 +462,175 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
         setSceneIdx(i => i + 1);
       }
     }, 1800);
-  }, [sceneIdx, totalScenes, sublevelIndex, markExerciseDone, completeSublevel, onComplete, scene.speakerChar, narrate]);
+  }, [sceneIdx, totalScenes, sublevelIndex, markExerciseDone, completeSublevel, onComplete, scene.speakerChar, narrate, stopListening, stopNarration]);
+
+  const clearArmTimers = useCallback(() => {
+    if (armTimeoutRef.current) { clearTimeout(armTimeoutRef.current); armTimeoutRef.current = null; }
+  }, []);
+
+  const waitForSilenceThen = useCallback((fn: () => void, attempt = 0) => {
+    if (attempt > 25) { fn(); return; }
+    if (isPlayingRef.current) {
+      armTimeoutRef.current = setTimeout(() => {
+        armTimeoutRef.current = null;
+        waitForSilenceThen(fn, attempt + 1);
+      }, 100);
+      return;
+    }
+    fn();
+  }, []);
+
+  const scheduleArmMic = useCallback((delayMs: number) => {
+    clearArmTimers();
+    armTimeoutRef.current = setTimeout(() => {
+      armTimeoutRef.current = null;
+      waitForSilenceThen(() => voiceTriggerRef.current());
+    }, delayMs);
+  }, [clearArmTimers, waitForSilenceThen]);
 
   const handleWrong = useCallback(() => {
+    if (sceneStateRef.current === "correct" || sceneStateRef.current === "wrong") return;
+    stopListening();
+    stopNarration();
+    stopAll();
+
     const RETRIES = ["फिर से कोशिश करो 💪", "हिम्मत रखो!", "एक बार और सोचो", "बहुत करीब हो!"];
     const retryText = RETRIES[Math.floor(Math.random() * RETRIES.length)];
     setFeedbackText(retryText);
     setSceneState("wrong");
     setMicState("error");
     const listener: SpeakerCharacter = scene.speakerChar === "tina" ? "toto" : "tina";
-    narrate(pickRetryAudioId(listener), retryText, listener);
-    setTimeout(() => {
+    narrate(pickRetryAudioId(listener), retryText, listener, () => {
+      if (sceneStateRef.current !== "wrong") return;
+      answeringRef.current = false;
       setSceneState("intro");
-      setMicState("auto_start");
       setFeedbackText("");
-      setTimeout(() => voiceTriggerRef.current(), 400);
-    }, 1600);
-  }, [scene.speakerChar, narrate]);
+      setMicState("auto_start");
+      scheduleArmMic(1000);
+    });
+  }, [scene.speakerChar, narrate, stopListening, stopNarration, stopAll, scheduleArmMic]);
+
+  const handleTapAnswer = useCallback((picked: string) => {
+    if (sceneStateRef.current === "correct") return;
+    answeringRef.current = true;
+    clearArmTimers();
+    stopListening();
+    stopNarration();
+    const expected = getExpectedAnswers();
+    const norm = (s: string) => s.trim();
+    const matched = expected.some(
+      (e) => norm(picked) === norm(e) || norm(picked).includes(norm(e)) || norm(e).includes(norm(picked)),
+    );
+    if (matched) handleCorrectRef.current();
+    else handleWrongRef.current();
+  }, [getExpectedAnswers, stopListening, stopNarration, clearArmTimers]);
 
   // Assign latest closures to refs every render so effects/timeouts never go stale
   handleCorrectRef.current = handleCorrect;
   handleWrongRef.current   = handleWrong;
   voiceTriggerRef.current  = () => {
-    if (!isSupported) return;
+    if (sceneStateRef.current === "correct") return;
+    if (isListeningRef.current) return;
+
+    clearArmTimers();
+    stopNarration();
+    stopAll();
+
+    const capturedScene = sceneIdxRef.current;
     const answers = getExpectedAnswers();
-    setMicState("listening");
-    setSceneState("listening");
-    startListening(answers, (matched) => {
-      if (matched) handleCorrectRef.current();
-      else handleWrongRef.current();
+    const exerciseId = `level-${sublevelIndex}-scene-${sceneIdxRef.current}`;
+
+    answeringRef.current = false;
+    setMicState("auto_start");
+
+    waitForSilenceThen(() => {
+      if (sceneIdxRef.current !== capturedScene) return;
+
+      startListening(answers, (matched, text) => {
+        if (sceneIdxRef.current !== capturedScene) return;
+        if (answeringRef.current) return;
+
+        if (!text && !matched) {
+          setSceneState("intro");
+          setMicState("idle");
+          return;
+        }
+
+        answeringRef.current = true;
+        stopListening();
+        if (matched) handleCorrectRef.current();
+        else handleWrongRef.current();
+      }, exerciseId);
     });
   };
 
   // Narrate prompt on each scene, then auto-arm mic for voice scenes
   useEffect(() => {
+    answeringRef.current = false;
+    clearArmTimers();
     setSceneState("intro");
     setMicState("idle");
     stopListening();
     stopNarration();
+    stopAll();
     setFeedbackText("");
 
     const type = SCENE_ORDER[sceneIdx];
+    const capturedScene = sceneIdx;
     const data = getSceneData();
     const kind = sceneToPromptKind(type);
     const audioId = getScenePromptAudioId(kind, data.speakerChar);
 
     narrate(audioId, data.questionHi, data.speakerChar, () => {
+      if (sceneIdxRef.current !== capturedScene) return;
       if (!VOICE_SCENES.has(type)) return;
+      stopAll();
       setMicState("auto_start");
-      setTimeout(() => voiceTriggerRef.current(), 400);
+      scheduleArmMic(600);
     });
 
     return () => {
+      clearArmTimers();
       stopListening();
       stopNarration();
+      stopAll();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sceneIdx]);
 
   const handleMicTap = () => {
-    if (isListening) { stopListening(); setMicState("idle"); return; }
-    voiceTriggerRef.current();
+    if (isListening) {
+      stopListening();
+      setSceneState("intro");
+      setMicState("idle");
+      return;
+    }
+    answeringRef.current = false;
+    clearArmTimers();
+    stopNarration();
+    stopAll();
+
+    const capturedScene = sceneIdx;
+    const answers = getExpectedAnswers();
+    const exerciseId = `level-${sublevelIndex}-scene-${capturedScene}`;
+
+    setMicState("auto_start");
+
+    startListening(answers, (matched, text) => {
+      if (sceneIdxRef.current !== capturedScene) return;
+      if (answeringRef.current) return;
+
+      if (!text && !matched) {
+        setSceneState("intro");
+        setMicState("idle");
+        return;
+      }
+
+      answeringRef.current = true;
+      stopListening();
+      if (matched) handleCorrectRef.current();
+      else handleWrongRef.current();
+    }, exerciseId);
   };
 
   return (
@@ -532,10 +720,20 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
             className="flex flex-col items-center gap-4 flex-1 justify-center">
 
             {(sceneType==="name_object" || sceneType==="first_sound") && (
-              <ObjectDisplay src={obj1.image} nameHi={obj1.nameHi} large />
+              <ObjectDisplay
+                src={obj1.image}
+                nameHi={obj1.nameHi}
+                large
+                onTap={sceneType === "name_object" ? () => handleTapAnswer(obj1.nameHi) : undefined}
+              />
             )}
             {(sceneType==="name_object2" || sceneType==="first_sound2") && (
-              <ObjectDisplay src={obj2.image} nameHi={obj2.nameHi} large />
+              <ObjectDisplay
+                src={obj2.image}
+                nameHi={obj2.nameHi}
+                large
+                onTap={sceneType === "name_object2" ? () => handleTapAnswer(obj2.nameHi) : undefined}
+              />
             )}
 
             {sceneType === "blend" && (
@@ -567,8 +765,25 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
 
         {/* Mic button — voice scenes only */}
         {VOICE_SCENES.has(sceneType) && sceneState !== "correct" && (
-          <div className="flex flex-col items-center gap-2 pb-2">
+          <div className="flex flex-col items-center gap-3 pb-2">
             <BigMicButton state={micState} onTap={handleMicTap} />
+            {transcript && isListening && (
+              <p className="font-body text-xs text-center px-4 akshar" style={{ color: "rgba(255,248,237,0.7)" }}>
+                सुना: {transcript}
+              </p>
+            )}
+            {speechErr && (
+              <p className="font-body text-xs text-center px-4" style={{ color: "var(--warn)" }}>
+                {speechErr}
+              </p>
+            )}
+            {!isSupported && (
+              <p className="font-body text-xs text-center px-4" style={{ color: "rgba(255,248,237,0.55)" }}>
+                माइक काम नहीं कर रहा — नीचे टैप करो
+              </p>
+            )}
+            <p className="font-body text-xs" style={{ color: "rgba(255,248,237,0.45)" }}>या टैप करो</p>
+            <AnswerChips options={getTapOptions()} onPick={handleTapAnswer} />
           </div>
         )}
 

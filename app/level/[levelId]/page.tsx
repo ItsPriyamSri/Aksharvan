@@ -4,15 +4,22 @@ import React, { useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useRouteGuard }    from "@/hooks/useRouteGuard";
 import { DEFAULT_LEVEL_ID } from "@/lib/content/registry";
-import LevelEntryScreen     from "@/components/cutscene/LevelEntryScreen";
+import LevelIntroSequence from "@/components/cutscene/LevelIntroSequence";
 import ShotSequencePlayer   from "@/components/cutscene/ShotSequencePlayer";
 import { getLevelCutscene } from "@/lib/content/cutscenes";
 import LoadingScreen        from "@/components/ui/LoadingScreen";
 
-const LEVEL_ENTRY: Record<string, { imageSrc: string; captionHi: string }> = {
+const LEVEL_ENTRY: Record<string, {
+  imageSrc: string;
+  captionHi: string;
+  audioId: string;
+  speaker: "tina" | "toto";
+}> = {
   "level-1": {
-    imageSrc: "/scenes/1.jpeg",
-    captionHi: "जंगल को बचाने के लिए चलो सीखते हैं!",
+    imageSrc:  "/scenes/1.jpeg",
+    captionHi: "हर सही जवाब के साथ जंगल में जान लौट आएगी। चलो शुरू करें!",
+    audioId:   "cutscene_jungle_03b",
+    speaker:   "tina",
   },
 };
 
@@ -31,7 +38,7 @@ export default function LevelCutscenePage() {
   if (isChecking) return <LoadingScreen />;
 
   if (entry) {
-    return <LevelEntryScreen imageSrc={entry.imageSrc} captionHi={entry.captionHi} onComplete={handleComplete} />;
+    return <LevelIntroSequence entry={entry} onComplete={handleComplete} />;
   }
 
   const shots = getLevelCutscene(levelId);

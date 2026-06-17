@@ -1,36 +1,44 @@
 "use client";
 
-// useSpeechRecognition — browser Web Speech API for Hindi voice input.
-// Uses any-typed wrappers to avoid DOM type conflicts in the Next.js TS config.
-
 import { useState, useCallback, useRef } from "react";
+import { recognizeSpeech } from "@/lib/appwrite/functions";
+import { matchTranscript } from "@/lib/speech/match";
+import { blobToBase64, recordAudio, requestMicPermission } from "@/lib/speech/mic";
 
 type SpeechCallback = (matched: boolean, transcript: string, matchedOption?: string) => void;
 
+export type VoiceInputMode = "webspeech" | "recorder" | "none";
+
 export type SpeechState = {
-  isListening:   boolean;
-  isSupported:   boolean;
-  isProcessing:  boolean;
-  transcript:    string;
-  error:         string | null;
-  startListening: (expected: string[], onResult: SpeechCallback) => void;
-  stopListening:  () => void;
+  isListening: boolean;
+  isSupported: boolean;
+  isProcessing: boolean;
+  transcript: string;
+  error: string | null;
+  inputMode: VoiceInputMode;
+  startListening: (expected: string[], onResult: SpeechCallback, exerciseId?: string) => void;
+  stopListening: () => void;
 };
 
-function normalise(text: string): string {
-  return text.trim().toLowerCase()
-    .replace(/^(यह|यह है|है|एक|की|का)\s*/g, "").trim();
+const LISTEN_TIMEOUT_MS = 8000;
+const MIN_LISTEN_MS = 800;
+
+const APPWRITE_CONFIGURED =
+  typeof process !== "undefined"
+  && Boolean(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID)
+  && process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID !== "your_project_id";
+
+function hasWebSpeech(): boolean {
+  if (typeof window === "undefined") return false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const w = window as any;
+  return Boolean(w.SpeechRecognition ?? w.webkitSpeechRecognition);
 }
 
-function matchesOption(transcript: string, option: string): boolean {
-  const t = normalise(transcript);
-  const o = normalise(option);
-  if (!t || !o) return false;
-  if (t === o) return true;
-  if (t.includes(o)) return true;
-  if (o.includes(t) && t.length >= 1) return true;
-  if (t.length <= 2 && o.length >= 1 && t[0] === o[0]) return true;
-  return false;
+function hasMediaRecorder(): boolean {
+  return typeof navigator !== "undefined"
+    && Boolean(navigator.mediaDevices?.getUserMedia)
+    && typeof MediaRecorder !== "undefined";
 }
 
 export function useSpeechRecognition(): SpeechState {
@@ -38,55 +46,152 @@ export function useSpeechRecognition(): SpeechState {
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcript,   setTranscript]   = useState("");
   const [error,        setError]        = useState<string | null>(null);
+  const [inputMode,    setInputMode]    = useState<VoiceInputMode>("none");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
   const callbackRef    = useRef<SpeechCallback | null>(null);
   const optionsRef     = useRef<string[]>([]);
+  const exerciseIdRef  = useRef<string>("exercise");
+  const gotResultRef   = useRef(false);
+  const timeoutRef     = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionRef     = useRef(0);
+  const startedAtRef   = useRef(0);
 
-  const isSupported = typeof window !== "undefined" &&
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ("SpeechRecognition" in window || "webkitSpeechRecognition" in (window as any));
+  const webSpeechAvailable = hasWebSpeech();
+  const recorderAvailable  = hasMediaRecorder();
+  /** Sarvam ASR via Appwrite — no Google cloud; works in Chromium/Firefox. */
+  const canUseServerAsr    = APPWRITE_CONFIGURED && recorderAvailable;
+  const isSupported        = canUseServerAsr || webSpeechAvailable;
+  const canUseServerAsrRef = useRef(canUseServerAsr);
+  canUseServerAsrRef.current = canUseServerAsr;
+
+  const clearTimeoutRef = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
+  const deliverResult = useCallback((session: number, matched: boolean, text: string, option?: string) => {
+    if (session !== sessionRef.current) return;
+    if (gotResultRef.current) return;
+    gotResultRef.current = true;
+    clearTimeoutRef();
+    setIsProcessing(false);
+    setIsListening(false);
+    const cb = callbackRef.current;
+    callbackRef.current = null;
+    cb?.(matched, text, option);
+  }, []);
 
   const stopListening = useCallback(() => {
+    sessionRef.current += 1;
+    clearTimeoutRef();
+    callbackRef.current = null;
+    gotResultRef.current = true;
     if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch { /* ignore */ }
+      try { recognitionRef.current.abort(); } catch { /* ignore */ }
+      recognitionRef.current = null;
     }
     setIsListening(false);
     setIsProcessing(false);
   }, []);
 
-  const startListening = useCallback((expectedOptions: string[], onResult: SpeechCallback) => {
-    if (!isSupported) {
-      setError("आपके ब्राउज़र में आवाज़ पहचान नहीं है");
-      return;
-    }
-    if (recognitionRef.current) {
-      try { recognitionRef.current.abort(); } catch { /* ignore */ }
-    }
+  const runRecorderAsr = useCallback(async (session: number): Promise<boolean> => {
+    if (session !== sessionRef.current) return false;
 
-    callbackRef.current = onResult;
-    optionsRef.current  = expectedOptions;
+    setInputMode("recorder");
+    setIsListening(true);
+    setIsProcessing(false);
     setError(null);
     setTranscript("");
 
+    try {
+      const micOk = await requestMicPermission();
+      if (!micOk || session !== sessionRef.current) {
+        setError("माइक्रोफ़ोन की अनुमति चाहिए");
+        deliverResult(session, false, "");
+        return false;
+      }
+
+      const { blob, mimeType } = await recordAudio(LISTEN_TIMEOUT_MS);
+      if (session !== sessionRef.current) return false;
+
+      if (blob.size < 500) {
+        setError("कुछ सुनाई नहीं दिया — फिर से बोलो");
+        deliverResult(session, false, "");
+        return false;
+      }
+
+      setIsListening(false);
+      setIsProcessing(true);
+
+      const audioBase64 = await blobToBase64(blob);
+      if (session !== sessionRef.current) return false;
+
+      const asr = await recognizeSpeech({
+        audioBase64,
+        mimeType,
+        expected: optionsRef.current,
+        exerciseId: exerciseIdRef.current,
+      });
+
+      if (session !== sessionRef.current) return false;
+
+      const text = asr.transcript ?? "";
+      setTranscript(text);
+
+      if (asr.matched) {
+        const matchedOption = optionsRef.current.find(
+          (o) => matchTranscript(text, [o], asr.confidence ?? 0).matched,
+        );
+        deliverResult(session, true, text, matchedOption);
+        return true;
+      }
+
+      const { matched } = matchTranscript(text, optionsRef.current, asr.confidence ?? 0);
+      const matchedOption = matched
+        ? optionsRef.current.find((o) => matchTranscript(text, [o], asr.confidence ?? 0).matched)
+        : undefined;
+
+      deliverResult(session, matched, text, matchedOption);
+      return true;
+    } catch {
+      if (session !== sessionRef.current) return false;
+      return false;
+    }
+  }, [deliverResult]);
+
+  const startWebSpeech = useCallback((session: number, onAsrFallback?: () => void): boolean => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
     const API = w.SpeechRecognition ?? w.webkitSpeechRecognition;
-    if (!API) return;
+    if (!API) return false;
+
+    setInputMode("webspeech");
 
     const recognition = new API();
-    recognition.lang             = "hi-IN";
-    recognition.interimResults   = false;
-    recognition.maxAlternatives  = 5;
-    recognition.continuous       = false;
+    recognition.lang = "hi-IN";
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 5;
+    recognition.continuous = true;
 
-    recognition.onstart = () => { setIsListening(true); setIsProcessing(false); };
+    recognition.onstart = () => {
+      if (session !== sessionRef.current) return;
+      startedAtRef.current = Date.now();
+      setIsListening(true);
+      setIsProcessing(false);
+      clearTimeoutRef();
+      timeoutRef.current = setTimeout(() => {
+        if (session !== sessionRef.current || gotResultRef.current) return;
+        try { recognition.stop(); } catch { /* ignore */ }
+      }, LISTEN_TIMEOUT_MS);
+    };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onresult = (event: any) => {
-      setIsProcessing(true);
-      setIsListening(false);
+      if (session !== sessionRef.current) return;
 
       const allTexts: string[] = [];
       for (let i = 0; i < event.results.length; i++) {
@@ -95,45 +200,174 @@ export function useSpeechRecognition(): SpeechState {
         }
       }
 
-      const bestText = allTexts[0] ?? "";
-      setTranscript(bestText);
+      const bestText = allTexts[allTexts.length - 1] ?? "";
+      if (bestText) setTranscript(bestText);
+
+      const isFinal = event.results[event.results.length - 1]?.isFinal;
+      if (!isFinal) return;
+
+      setIsProcessing(true);
+      setIsListening(false);
 
       let matchedOption: string | undefined;
       let matched = false;
       outer: for (const text of allTexts) {
-        for (const option of optionsRef.current) {
-          if (matchesOption(text, option)) {
-            matched = true;
-            matchedOption = option;
-            break outer;
-          }
+        const result = matchTranscript(text, optionsRef.current);
+        if (result.matched) {
+          matched = true;
+          matchedOption = optionsRef.current.find(
+            (o) => matchTranscript(text, [o]).matched,
+          );
+          break outer;
         }
       }
 
-      setTimeout(() => {
-        setIsProcessing(false);
-        callbackRef.current?.(matched, bestText, matchedOption);
-      }, 200);
+      try { recognition.stop(); } catch { /* ignore */ }
+      deliverResult(session, matched, bestText, matchedOption);
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onerror = (event: any) => {
+      if (session !== sessionRef.current) return;
       setIsListening(false);
       setIsProcessing(false);
-      if (event.error === "no-speech")      setError("कुछ सुनाई नहीं दिया — फिर से बोलो");
-      else if (event.error === "not-allowed") setError("माइक्रोफ़ोन की अनुमति चाहिए");
-      else                                    setError("आवाज़ नहीं पहचानी — फिर कोशिश करो");
+      clearTimeoutRef();
+
+      if (event.error === "aborted") return;
+
+      const elapsed = Date.now() - startedAtRef.current;
+
+      if (event.error === "no-speech" && elapsed < MIN_LISTEN_MS) {
+        try { recognition.start(); } catch { /* ignore */ }
+        return;
+      }
+
+      const tryAsrFallback = event.error === "network" || event.error === "service-not-allowed";
+      if (tryAsrFallback && canUseServerAsrRef.current) {
+        gotResultRef.current = false;
+        recognitionRef.current = null;
+        onAsrFallback?.();
+        return;
+      }
+
+      if (event.error === "no-speech") {
+        setError("कुछ सुनाई नहीं दिया — फिर से बोलो");
+      } else if (event.error === "not-allowed") {
+        setError("माइक्रोफ़ोन की अनुमति चाहिए");
+      } else if (event.error === "network") {
+        setError("Google आवाज़ सेवा नहीं मिली — Sarvam ASR चालू करें");
+      } else {
+        setError("आवाज़ नहीं पहचानी — फिर कोशिश करो");
+      }
+
+      deliverResult(session, false, "");
     };
 
-    recognition.onend = () => { setIsListening(false); };
+    recognition.onend = () => {
+      if (session !== sessionRef.current) return;
+      setIsListening(false);
+      if (gotResultRef.current) return;
+
+      const elapsed = Date.now() - startedAtRef.current;
+      if (elapsed < MIN_LISTEN_MS) {
+        try { recognition.start(); } catch { /* ignore */ }
+        return;
+      }
+
+      deliverResult(session, false, "");
+    };
 
     recognitionRef.current = recognition;
-    recognition.start();
-  }, [isSupported]);
+    try {
+      recognition.start();
+      return true;
+    } catch {
+      return false;
+    }
+  }, [deliverResult]);
+
+  const startListening = useCallback((
+    expectedOptions: string[],
+    onResult: SpeechCallback,
+    exerciseId = "exercise",
+  ) => {
+    if (!isSupported) {
+      setError("माइक उपलब्ध नहीं — नीचे टैप करो");
+      return;
+    }
+
+    sessionRef.current += 1;
+    const session = sessionRef.current;
+
+    if (recognitionRef.current) {
+      try { recognitionRef.current.abort(); } catch { /* ignore */ }
+      recognitionRef.current = null;
+    }
+
+    callbackRef.current = onResult;
+    optionsRef.current = expectedOptions;
+    exerciseIdRef.current = exerciseId;
+    gotResultRef.current = false;
+    setError(null);
+    setTranscript("");
+
+    const tryAsr = () => {
+      gotResultRef.current = false;
+      void (async () => {
+        const ok = await runRecorderAsr(session);
+        if (ok || session !== sessionRef.current) return;
+
+        if (webSpeechAvailable) {
+          const started = startWebSpeech(session, tryAsr);
+          if (started) return;
+        }
+
+        setError("आवाज़ नहीं पहचानी — नीचे टैप करो या फिर माइक दबाएँ");
+        deliverResult(session, false, "");
+      })();
+    };
+
+    void (async () => {
+      const micOk = await requestMicPermission();
+      if (session !== sessionRef.current) return;
+
+      if (!micOk) {
+        setError("माइक्रोफ़ोन की अनुमति चाहिए");
+        deliverResult(session, false, "");
+        return;
+      }
+
+      // Prefer Sarvam ASR — no Google dependency (fixes Chromium "network" errors).
+      if (canUseServerAsr) {
+        tryAsr();
+        return;
+      }
+
+      if (webSpeechAvailable) {
+        const started = startWebSpeech(session, tryAsr);
+        if (started) return;
+      }
+
+      setError("माइक शुरू नहीं हो सका — फिर दबाएँ");
+      deliverResult(session, false, "");
+    })();
+  }, [
+    isSupported,
+    canUseServerAsr,
+    webSpeechAvailable,
+    runRecorderAsr,
+    startWebSpeech,
+    deliverResult,
+  ]);
 
   return {
-    isListening, isSupported, isProcessing,
-    transcript, error,
-    startListening, stopListening,
+    isListening,
+    isSupported,
+    isProcessing,
+    transcript,
+    error,
+    inputMode,
+    startListening,
+    stopListening,
   };
 }

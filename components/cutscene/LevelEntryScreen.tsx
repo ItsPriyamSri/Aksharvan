@@ -1,28 +1,46 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { useNarration } from "@/hooks/useNarration";
+import { useAudio } from "@/contexts/AudioContext";
+import type { SpeakerCharacter } from "@/types/audio";
 
 type Props = {
   imageSrc: string;
   captionHi: string;
+  audioId: string;
+  speaker: SpeakerCharacter;
   onComplete: () => void;
 };
 
-export default function LevelEntryScreen({ imageSrc, captionHi, onComplete }: Props) {
+export default function LevelEntryScreen({
+  imageSrc,
+  captionHi,
+  audioId,
+  speaker,
+  onComplete,
+}: Props) {
+  const { narrate, stop } = useNarration();
+  const { unlockAudio } = useAudio();
+
+  const finish = useCallback(() => {
+    stop();
+    onComplete();
+  }, [stop, onComplete]);
+
   useEffect(() => {
-    const t = setTimeout(onComplete, 6000);
-    return () => clearTimeout(t);
-  }, [onComplete]);
+    unlockAudio();
+    narrate(audioId, captionHi, speaker);
+    return () => stop();
+  }, [audioId, captionHi, speaker, narrate, stop, unlockAudio]);
 
   return (
     <div className="relative flex items-center justify-center h-dvh bg-black overflow-hidden">
-      {/* Portrait 9:16 frame */}
       <div
         className="relative h-full overflow-hidden"
         style={{ width: "min(100vw, calc(100dvh * 9 / 16))" }}
       >
-        {/* Scene image — Ken-Burns zoom in */}
         <motion.img
           src={imageSrc}
           alt=""
@@ -33,13 +51,11 @@ export default function LevelEntryScreen({ imageSrc, captionHi, onComplete }: Pr
           draggable={false}
         />
 
-        {/* Bottom gradient for caption readability */}
         <div
           className="absolute bottom-0 left-0 right-0 pointer-events-none"
           style={{ height: "45%", background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 100%)" }}
         />
 
-        {/* Tina — bottom left */}
         <motion.div
           className="absolute bottom-0 left-0 z-10 pointer-events-none"
           initial={{ opacity: 0, x: -24 }}
@@ -60,7 +76,6 @@ export default function LevelEntryScreen({ imageSrc, captionHi, onComplete }: Pr
           />
         </motion.div>
 
-        {/* Toto — bottom right */}
         <motion.div
           className="absolute bottom-0 right-0 z-10 pointer-events-none"
           initial={{ opacity: 0, x: 24 }}
@@ -82,7 +97,6 @@ export default function LevelEntryScreen({ imageSrc, captionHi, onComplete }: Pr
           />
         </motion.div>
 
-        {/* Caption */}
         <motion.div
           className="absolute left-0 right-0 z-20 text-center px-10"
           style={{ bottom: "22%" }}
@@ -101,10 +115,9 @@ export default function LevelEntryScreen({ imageSrc, captionHi, onComplete }: Pr
           </p>
         </motion.div>
 
-        {/* Start button */}
         <motion.button
           type="button"
-          onClick={onComplete}
+          onClick={finish}
           className="absolute left-1/2 z-20 px-8 py-3 rounded-full font-display font-bold"
           style={{
             bottom: "8%",

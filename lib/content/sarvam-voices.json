@@ -6,22 +6,25 @@
   "enable_preprocessing": true,
   "voices": {
     "tina": {
-      "speaker": "priya",
-      "pace": 0.86,
-      "note": "Warm, clear female — child-directed Hindi"
+      "speaker": "suhani",
+      "pace": 1.02,
+      "playbackRate": 1.08,
+      "note": "Suhani — bright, natural female Hindi (Bulbul v3)"
     },
     "toto": {
       "speaker": "aayan",
-      "pace": 0.9,
-      "note": "Playful younger male — child-directed Hindi"
+      "pace": 0.95,
+      "playbackRate": 1,
+      "note": "Aayan — warm younger male Hindi (Bulbul v3)"
     },
     "default": {
-      "speaker": "priya",
-      "pace": 0.88
+      "speaker": "suhani",
+      "pace": 0.95,
+      "playbackRate": 1
     }
   },
   "browserTtsFallback": {
-    "tina": { "pitch": 1.12, "rate": 0.88 },
+    "tina": { "pitch": 1.12, "rate": 1.05 },
     "toto": { "pitch": 0.88, "rate": 0.92 }
   }
 }

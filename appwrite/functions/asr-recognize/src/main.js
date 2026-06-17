@@ -7,11 +7,8 @@ const COLLECTION_RECORDINGS = 'recordings';
 const BUCKET_RECORDINGS     = 'recordings';
 
 export default async ({ req, res, log, error }) => {
-  // Require an authenticated session
-  const userId = req.headers['x-appwrite-user-id'];
-  if (!userId) {
-    return res.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, 401);
-  }
+  // Guest / exercise-only ASR is allowed; userId only needed for consent recording storage.
+  const userId = req.headers['x-appwrite-user-id'] ?? null;
 
   let body;
   try {
@@ -56,7 +53,7 @@ export default async ({ req, res, log, error }) => {
 
   // Consent-gated recording storage
   const consentHeader = req.headers['x-consent'];
-  if (consentHeader === 'true' && typeof exerciseId === 'string') {
+  if (userId && consentHeader === 'true' && typeof exerciseId === 'string') {
     try {
       const client = new Client()
         .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)

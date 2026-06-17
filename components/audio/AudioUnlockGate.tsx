@@ -6,6 +6,7 @@
 
 import { useEffect } from "react";
 import { useAudio } from "@/contexts/AudioContext";
+import { requestMicPermission } from "@/lib/speech/mic";
 
 export default function AudioUnlockGate() {
   const { audioUnlocked, unlockAudio } = useAudio();
@@ -15,6 +16,7 @@ export default function AudioUnlockGate() {
 
     const handleFirstGesture = () => {
       unlockAudio();
+      void requestMicPermission();
       document.removeEventListener("click", handleFirstGesture);
       document.removeEventListener("touchstart", handleFirstGesture);
     };

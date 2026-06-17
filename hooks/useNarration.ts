@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from "react";
 import { useAudio } from "@/contexts/AudioContext";
-import { SARVAM_BROWSER_TTS } from "@/lib/content/sarvam-voices";
+import { getPlaybackRate, SARVAM_BROWSER_TTS } from "@/lib/content/sarvam-voices";
 import type { SpeakerCharacter } from "@/types/audio";
 
 function speakWithBrowserTts(
@@ -86,6 +86,7 @@ export function useNarration() {
           () => {
             fallback();
           },
+          getPlaybackRate(speaker),
         );
       })();
     },

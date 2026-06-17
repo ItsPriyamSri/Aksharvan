@@ -32,7 +32,12 @@ type AudioContextValue = {
    * In mock mode: calls onEnd immediately (no audio plays).
    * Returns a stop handle.
    */
-  playClip: (fileId: string, onEnd?: () => void, onError?: () => void) => () => void;
+  playClip: (
+    fileId: string,
+    onEnd?: () => void,
+    onError?: () => void,
+    playbackRate?: number,
+  ) => () => void;
   /** Stop all currently playing clips */
   stopAll: () => void;
   /** Whether any narration is currently playing */
@@ -81,7 +86,12 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const playClip = useCallback(
-    (fileId: string, onEnd?: () => void, onError?: () => void): (() => void) => {
+    (
+      fileId: string,
+      onEnd?: () => void,
+      onError?: () => void,
+      playbackRate = 1,
+    ): (() => void) => {
       if (IS_MOCK) {
         onError?.();
         return () => {};
@@ -118,6 +128,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         onError?.();
       });
 
+      howl.rate(playbackRate);
       howl.play();
       return () => howl.stop();
     },
