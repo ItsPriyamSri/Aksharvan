@@ -63,7 +63,7 @@ export default function LevelEntryScreen({
           transition={{ delay: 0.5, duration: 0.45, ease: "easeOut" }}
         >
           <motion.img
-            src="/characters/Tina_transparent.png"
+            src="/characters/Tina_Puppet.png"
             alt="टीना"
             className="object-contain object-bottom"
             style={{
@@ -83,7 +83,7 @@ export default function LevelEntryScreen({
           transition={{ delay: 0.65, duration: 0.45, ease: "easeOut" }}
         >
           <motion.img
-            src="/characters/Toto_transparent.png"
+            src="/characters/Toto_Puppet.png"
             alt="टोटो"
             className="object-contain object-bottom"
             style={{

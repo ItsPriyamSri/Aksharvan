@@ -2,17 +2,20 @@
 // STORY INTRO — cinematic dialogue between Tina and Toto
 // Shown after intro video, before map screen
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouteGuard } from "@/hooks/useRouteGuard";
 import { useProgress }   from "@/contexts/ProgressContext";
+import { useNarration }  from "@/hooks/useNarration";
+import { useAudio }      from "@/contexts/AudioContext";
 import LoadingScreen     from "@/components/ui/LoadingScreen";
 
 const SCENES = [
   {
     speaker: "tina" as const,
     text: "जंगल को बचाने के लिए कुछ सवालों के जवाब दो!",
+    audioId: "story_hook_tina",
     subtext: "Tina",
     emoji: "🌳",
     bg: "linear-gradient(180deg,#040C08 0%,#0A1F12 50%,#0D2818 100%)",
@@ -20,6 +23,7 @@ const SCENES = [
   {
     speaker: "toto" as const,
     text: "चलो सीखते हैं और जंगल को फिर से हरा-भरा बनाते हैं!",
+    audioId: "story_hook_toto",
     subtext: "Toto",
     emoji: "✨",
     bg: "linear-gradient(180deg,#040C12 0%,#081828 50%,#0A2030 100%)",
@@ -30,8 +34,18 @@ export default function StoryPage() {
   const router = useRouter();
   const { isChecking } = useRouteGuard({ mode: "require-auth" });
   const { markIntroSeen } = useProgress();
+  const { narrate, stop } = useNarration();
+  const { unlockAudio } = useAudio();
   const [sceneIdx, setSceneIdx] = useState(0);
   const [exiting, setExiting] = useState(false);
+
+  const scene = SCENES[sceneIdx];
+
+  useEffect(() => {
+    unlockAudio();
+    narrate(scene.audioId, scene.text, scene.speaker);
+    return () => stop();
+  }, [sceneIdx, scene.audioId, scene.text, scene.speaker, narrate, stop, unlockAudio]);
 
   const advance = useCallback(async () => {
     if (sceneIdx < SCENES.length - 1) {
@@ -45,7 +59,6 @@ export default function StoryPage() {
 
   if (isChecking) return <LoadingScreen />;
 
-  const scene = SCENES[sceneIdx];
   const isTina = scene.speaker === "tina";
 
   return (
@@ -115,7 +128,7 @@ export default function StoryPage() {
               {/* Tina */}
               <motion.div animate={{ opacity: isTina ? 1 : 0.4, scale: isTina ? 1 : 0.85 }} transition={{ duration: 0.3 }}
                 className="flex flex-col items-center gap-1">
-                <motion.img src="/characters/Tina_transparent.png" alt="टीना"
+                <motion.img src="/characters/Tina_Puppet.png" alt="टीना"
                   animate={isTina ? { y: [0,-8,-3,-10,0], rotate: [0,-1.5,1,-1.5,0] } : { y: 0 }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   className="object-contain object-bottom"
@@ -129,7 +142,7 @@ export default function StoryPage() {
               {/* Toto */}
               <motion.div animate={{ opacity: !isTina ? 1 : 0.4, scale: !isTina ? 1 : 0.85 }} transition={{ duration: 0.3 }}
                 className="flex flex-col items-center gap-1">
-                <motion.img src="/characters/Toto_transparent.png" alt="टोटो"
+                <motion.img src="/characters/Toto_Puppet.png" alt="टोटो"
                   animate={!isTina ? { y: [0,-8,-3,-10,0], rotate: [0,1.5,-1,1.5,0] } : { y: 0 }}
                   transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
                   className="object-contain object-bottom"

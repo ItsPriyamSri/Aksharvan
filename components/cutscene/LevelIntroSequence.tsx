@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNarration } from "@/hooks/useNarration";
 import { useAudio } from "@/contexts/AudioContext";
@@ -56,12 +56,22 @@ function PuppetLineScreen({
 }) {
   const { narrate, stop } = useNarration();
   const { unlockAudio } = useAudio();
+  const advancedRef = useRef(false);
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
+
+  const advance = useCallback(() => {
+    if (advancedRef.current) return;
+    advancedRef.current = true;
+    onDoneRef.current();
+  }, []);
 
   useEffect(() => {
+    advancedRef.current = false;
     unlockAudio();
-    narrate(line.audioId, line.captionHi, line.speaker, onDone);
+    narrate(line.audioId, line.captionHi, line.speaker, advance);
     return () => stop();
-  }, [line, narrate, stop, onDone, unlockAudio]);
+  }, [line.id, line.audioId, line.captionHi, line.speaker, narrate, stop, unlockAudio, advance]);
 
   const glow = line.speaker === "tina" ? "var(--tina)" : "var(--toto)";
 
@@ -100,7 +110,7 @@ function PuppetLineScreen({
         </motion.p>
         <button
           type="button"
-          onClick={onDone}
+          onClick={advance}
           className="mt-6 px-5 py-2 rounded-full font-body text-sm text-white/70"
           style={{ border: "1px solid rgba(255,255,255,0.25)" }}
         >

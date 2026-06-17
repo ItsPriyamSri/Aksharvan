@@ -9,8 +9,8 @@ import { useProgress } from "@/contexts/ProgressContext";
 import { useAudio } from "@/contexts/AudioContext";
 import {
   getScenePromptAudioId,
-  pickPraiseAudioId,
-  pickRetryAudioId,
+  pickPraiseLine,
+  pickRetryLine,
   type ScenePromptKind,
 } from "@/lib/content/audio-resolver";
 import type { SpeakerCharacter } from "@/types/audio";
@@ -330,7 +330,7 @@ function SoundComboGame({ letters, onComplete }: { letters: LetterCard[]; onComp
 
 // ── MAIN ENGINE ───────────────────────────────────────────
 export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }: Props) {
-  const { completeSublevel, markExerciseDone } = useProgress();
+  const { markExerciseDone } = useProgress();
 
   const sublevel = level.sublevels[sublevelIndex];
   const obj1     = sublevel.objects[0];
@@ -365,6 +365,7 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
   const answeringRef    = useRef(false);
   const isPlayingRef    = useRef(false);
   const armTimeoutRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const correctAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isListeningRef  = useRef(false);
 
@@ -438,34 +439,9 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
   const scene  = getSceneData();
   const isTina = scene.speakerChar === "tina";
 
-  const handleCorrect = useCallback(() => {
-    if (sceneStateRef.current === "correct") return;
-    answeringRef.current = true;
-    stopListening();
-    stopNarration();
-
-    const PRAISES = ["शाबाश! 🌟", "बहुत बढ़िया! ✨", "कमाल! 🎉", "बिल्कुल सही! 💫", "वाह! 🌈"];
-    const praiseText = PRAISES[Math.floor(Math.random() * PRAISES.length)];
-    setFeedbackText(praiseText);
-    setSceneState("correct");
-    setRestoreLevel(r => Math.min(r + 1, FOREST_BG.length - 1));
-    setMicState("success");
-    const listener: SpeakerCharacter = scene.speakerChar === "tina" ? "toto" : "tina";
-    narrate(pickPraiseAudioId(listener), praiseText, listener);
-    markExerciseDone(sublevelIndex, sceneIdx + 1).catch(() => {});
-    setTimeout(() => {
-      setMicState("idle");
-      if (sceneIdx >= totalScenes - 1) {
-        completeSublevel(sublevelIndex).catch(() => {});
-        setTimeout(() => onComplete(sublevelIndex), 600);
-      } else {
-        setSceneIdx(i => i + 1);
-      }
-    }, 1800);
-  }, [sceneIdx, totalScenes, sublevelIndex, markExerciseDone, completeSublevel, onComplete, scene.speakerChar, narrate, stopListening, stopNarration]);
-
   const clearArmTimers = useCallback(() => {
     if (armTimeoutRef.current) { clearTimeout(armTimeoutRef.current); armTimeoutRef.current = null; }
+    if (correctAdvanceRef.current) { clearTimeout(correctAdvanceRef.current); correctAdvanceRef.current = null; }
   }, []);
 
   const waitForSilenceThen = useCallback((fn: () => void, attempt = 0) => {
@@ -488,19 +464,55 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
     }, delayMs);
   }, [clearArmTimers, waitForSilenceThen]);
 
+  const handleCorrect = useCallback(() => {
+    if (sceneStateRef.current === "correct") return;
+    answeringRef.current = true;
+    stopListening();
+    clearArmTimers();
+
+    const listener: SpeakerCharacter = scene.speakerChar === "tina" ? "toto" : "tina";
+    const praise = pickPraiseLine(listener);
+    setFeedbackText(praise.displayHi);
+    setSceneState("correct");
+    setRestoreLevel(r => Math.min(r + 1, FOREST_BG.length - 1));
+    setMicState("success");
+
+    const capturedScene = sceneIdx;
+
+    markExerciseDone(sublevelIndex, sceneIdx + 1).catch(() => {});
+
+    narrate(praise.audioId, praise.textHi, listener, () => {
+      if (sceneStateRef.current !== "correct") return;
+      if (sceneIdxRef.current !== capturedScene) return;
+
+      correctAdvanceRef.current = setTimeout(() => {
+        correctAdvanceRef.current = null;
+        setMicState("idle");
+
+        if (capturedScene >= totalScenes - 1) {
+          onComplete(sublevelIndex);
+        } else {
+          answeringRef.current = false;
+          setSceneState("intro");
+          setFeedbackText("");
+          setSceneIdx(capturedScene + 1);
+        }
+      }, 700);
+    });
+  }, [sceneIdx, totalScenes, sublevelIndex, markExerciseDone, onComplete, scene.speakerChar, narrate, stopListening, clearArmTimers]);
+
   const handleWrong = useCallback(() => {
     if (sceneStateRef.current === "correct" || sceneStateRef.current === "wrong") return;
     stopListening();
     stopNarration();
     stopAll();
 
-    const RETRIES = ["फिर से कोशिश करो 💪", "हिम्मत रखो!", "एक बार और सोचो", "बहुत करीब हो!"];
-    const retryText = RETRIES[Math.floor(Math.random() * RETRIES.length)];
-    setFeedbackText(retryText);
+    const listener: SpeakerCharacter = scene.speakerChar === "tina" ? "toto" : "tina";
+    const retry = pickRetryLine(listener);
+    setFeedbackText(retry.displayHi);
     setSceneState("wrong");
     setMicState("error");
-    const listener: SpeakerCharacter = scene.speakerChar === "tina" ? "toto" : "tina";
-    narrate(pickRetryAudioId(listener), retryText, listener, () => {
+    narrate(retry.audioId, retry.textHi, listener, () => {
       if (sceneStateRef.current !== "wrong") return;
       answeringRef.current = false;
       setSceneState("intro");
@@ -674,7 +686,7 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
         {/* Character prompt */}
         <div className="flex items-end gap-3 w-full">
           <motion.div animate={{ opacity: 0.35, scale: 0.78 }} className="shrink-0">
-            <img src={isTina ? "/characters/Toto_transparent.png" : "/characters/Tina_transparent.png"}
+            <img src={isTina ? "/characters/Toto_Face.png" : "/characters/Tina_Face.png"}
               alt="" className="object-contain object-bottom"
               style={{ width:44, height:62, transform: isTina ? "scaleX(-1)" : undefined }}
               draggable={false} />
@@ -700,7 +712,7 @@ export default function SceneEngine({ level, sublevelIndex, onComplete, onBack }
 
           <motion.div className="shrink-0">
             <motion.img
-              src={isTina ? "/characters/Tina_transparent.png" : "/characters/Toto_transparent.png"}
+              src={isTina ? "/characters/Tina_Face.png" : "/characters/Toto_Face.png"}
               alt={scene.speakerHi}
               animate={{ y: sceneState==="intro" ? [0,-5,0] : 0, rotate: isTina ? [0,-2,2,0] : [0,2,-2,0] }}
               transition={{ duration:1.8, repeat:Infinity, ease:"easeInOut" }}

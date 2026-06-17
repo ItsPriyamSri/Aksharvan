@@ -3,6 +3,7 @@
 import { useCallback, useRef } from "react";
 import { useAudio } from "@/contexts/AudioContext";
 import { getPlaybackRate, SARVAM_BROWSER_TTS } from "@/lib/content/sarvam-voices";
+import { stripEmojisForSpeech } from "@/lib/speech/text";
 import type { SpeakerCharacter } from "@/types/audio";
 
 function speakWithBrowserTts(
@@ -53,8 +54,13 @@ async function clipExists(audioId: string): Promise<boolean> {
 export function useNarration() {
   const { playClip, stopAll, audioUnlocked } = useAudio();
   const stopRef = useRef<(() => void) | null>(null);
+  const generationRef = useRef(0);
+  const audioUnlockedRef = useRef(audioUnlocked);
+
+  audioUnlockedRef.current = audioUnlocked;
 
   const stop = useCallback(() => {
+    generationRef.current += 1;
     stopRef.current?.();
     stopRef.current = null;
     stopAll();
@@ -69,28 +75,45 @@ export function useNarration() {
       onEnd?: () => void,
     ): void => {
       stop();
+      const gen = generationRef.current;
+      const speechText = stripEmojisForSpeech(textHi);
+
+      const finish = () => {
+        if (gen !== generationRef.current) return;
+        onEnd?.();
+      };
 
       const fallback = () => {
-        stopRef.current = speakWithBrowserTts(textHi, speaker, onEnd);
+        if (gen !== generationRef.current) return;
+        stopAll();
+        if (typeof window !== "undefined") window.speechSynthesis?.cancel();
+        stopRef.current = speakWithBrowserTts(speechText, speaker, finish);
       };
 
       void (async () => {
-        if (!audioUnlocked || !(await clipExists(audioId))) {
+        if (gen !== generationRef.current) return;
+
+        const unlocked = audioUnlockedRef.current;
+        if (!unlocked || !(await clipExists(audioId))) {
+          if (gen !== generationRef.current) return;
           fallback();
           return;
         }
 
+        if (gen !== generationRef.current) return;
+
         stopRef.current = playClip(
           audioId,
-          onEnd,
+          finish,
           () => {
+            if (gen !== generationRef.current) return;
             fallback();
           },
           getPlaybackRate(speaker),
         );
       })();
     },
-    [audioUnlocked, playClip, stop],
+    [playClip, stop, stopAll],
   );
 
   return { narrate, stop };

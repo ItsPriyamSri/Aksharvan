@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { SpeakerCharacter } from "@/types/audio";
 
 const CHARS: Record<SpeakerCharacter,{ src:string; label:string; color:string }> = {
-  tina: { src:"/characters/Tina_transparent.png", label:"टीना", color:"var(--tina)" },
-  toto: { src:"/characters/Toto_transparent.png", label:"टोटो", color:"var(--toto)" },
+  tina: { src:"/characters/Tina_Puppet.png", label:"टीना", color:"var(--tina)" },
+  toto: { src:"/characters/Toto_Puppet.png", label:"टोटो", color:"var(--toto)" },
 };
 
 const SIZES: Record<string,{ h:string; w:string; bubble:string }> = {

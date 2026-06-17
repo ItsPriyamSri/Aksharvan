@@ -17,8 +17,8 @@ export default function CharacterPromptBar({ promptTextHi, feedbackText, phase }
   const silent     = isFeedback ? activeSpeaker : listeningCharacter;
 
   const CHARS = {
-    tina:{ src:"/characters/Tina_transparent.png",color:"var(--tina)",label:"टीना" },
-    toto:{ src:"/characters/Toto_transparent.png",color:"var(--toto)",label:"टोटो" },
+    tina:{ src:"/characters/Tina_Face.png",color:"var(--tina)",label:"टीना" },
+    toto:{ src:"/characters/Toto_Face.png",color:"var(--toto)",label:"टोटो" },
   };
   const sp = CHARS[speaker], si = CHARS[silent];
 

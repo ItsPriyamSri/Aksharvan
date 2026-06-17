@@ -30,10 +30,10 @@ export default function MenuPage() {
   const [tapping, setTapping]        = useState(false);
   const [tinaIdx, setTinaIdx]        = useState(0);
   const [totoIdx, setTotoIdx]        = useState(0);
-  const [bgSrc, setBgSrc]            = useState("/scenes/7.jpeg");
+  const [bgSrc, setBgSrc]            = useState("/scenes/menu-portrait.jpeg");
 
   useEffect(() => {
-    const update = () => setBgSrc(window.innerWidth < 640 ? "/scenes/7.jpeg" : "/scenes/menu.jpeg");
+    const update = () => setBgSrc(window.innerWidth < 640 ? "/scenes/menu-portrait.jpeg" : "/scenes/menu.jpeg");
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
@@ -136,9 +136,6 @@ export default function MenuPage() {
               filter:"drop-shadow(0 0 28px rgba(255,193,7,0.35))" }}>
             अक्षरवन
           </h1>
-          <p className="font-body mt-0.5 text-center" style={{fontSize:"0.75rem",color:"rgba(255,248,237,0.4)"}}>
-            जादूई जंगल में हिंदी सीखो
-          </p>
         </motion.div>
 
         {/* Characters + Play — flex-1 area */}
@@ -159,7 +156,7 @@ export default function MenuPage() {
                   </div>
                 </motion.div>
               </AnimatePresence>
-              <motion.img src="/characters/Tina_transparent.png" alt="टीना"
+              <motion.img src="/characters/Tina_Puppet.png" alt="टीना"
                 className="object-contain object-bottom"
                 style={{ width:90,height:128,filter:"drop-shadow(0 0 14px var(--tina)) drop-shadow(0 6px 16px rgba(0,0,0,0.5))" }}
                 animate={{ y:[0,-9,-3,-11,0],rotate:[0,-1.5,1,-1.5,0] }}
@@ -180,7 +177,7 @@ export default function MenuPage() {
                   </div>
                 </motion.div>
               </AnimatePresence>
-              <motion.img src="/characters/Toto_transparent.png" alt="टोटो"
+              <motion.img src="/characters/Toto_Puppet.png" alt="टोटो"
                 className="object-contain object-bottom"
                 style={{ width:90,height:128,transform:"scaleX(-1)",filter:"drop-shadow(0 0 14px var(--toto)) drop-shadow(0 6px 16px rgba(0,0,0,0.5))" }}
                 animate={{ y:[0,-11,-4,-8,0],rotate:[0,1.5,-1,1.5,0] }}

@@ -432,6 +432,18 @@
       "text": "शाबाश! आपने जादूई जंगल को बचा लिया!",
       "voice": "tina",
       "category": "cutscene"
+    },
+    {
+      "audioName": "story_hook_tina",
+      "text": "जंगल को बचाने के लिए कुछ सवालों के जवाब दो!",
+      "voice": "tina",
+      "category": "cutscene"
+    },
+    {
+      "audioName": "story_hook_toto",
+      "text": "चलो सीखते हैं और जंगल को फिर से हरा-भरा बनाते हैं!",
+      "voice": "toto",
+      "category": "cutscene"
     }
   ]
 }

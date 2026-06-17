@@ -33,15 +33,6 @@ const PROMPT_IDS: Record<ScenePromptKind, Record<SpeakerCharacter, string>> = {
   },
 };
 
-const PRAISE_IDS: Record<SpeakerCharacter, string[]> = {
-  tina: ["encourage_shabash__tina", "encourage_bahut_badhiya__tina", "encourage_wah__tina"],
-  toto: ["encourage_shabash__toto", "encourage_bahut_badhiya__toto", "encourage_wah__toto"],
-};
-
-const RETRY_IDS: Record<SpeakerCharacter, string[]> = {
-  tina: ["nudge_try_again__tina", "nudge_listen__tina"],
-  toto: ["nudge_try_again__toto", "nudge_listen__toto"],
-};
 
 export function getScenePromptAudioId(
   kind: ScenePromptKind,
@@ -50,12 +41,58 @@ export function getScenePromptAudioId(
   return PROMPT_IDS[kind][speaker];
 }
 
-export function pickPraiseAudioId(speaker: SpeakerCharacter): string {
-  const pool = PRAISE_IDS[speaker];
+const PRAISE_LINES: Record<SpeakerCharacter, { audioId: string; textHi: string; displayHi: string }[]> = {
+  tina: [
+    { audioId: "encourage_shabash__tina",       textHi: "शाबाश!",        displayHi: "शाबाश! 🌟" },
+    { audioId: "encourage_bahut_badhiya__tina", textHi: "बहुत बढ़िया!", displayHi: "बहुत बढ़िया! ✨" },
+    { audioId: "encourage_wah__tina",           textHi: "वाह!",          displayHi: "वाह! 🌈" },
+  ],
+  toto: [
+    { audioId: "encourage_shabash__toto",       textHi: "शाबाश!",        displayHi: "शाबाश! 🌟" },
+    { audioId: "encourage_bahut_badhiya__toto", textHi: "बहुत बढ़िया!", displayHi: "बहुत बढ़िया! ✨" },
+    { audioId: "encourage_wah__toto",           textHi: "वाह!",          displayHi: "वाह! 🌈" },
+  ],
+};
+
+const RETRY_LINES: Record<SpeakerCharacter, { audioId: string; textHi: string; displayHi: string }[]> = {
+  tina: [
+    { audioId: "nudge_try_again__tina", textHi: "कोई बात नहीं, फिर से कोशिश करो।", displayHi: "फिर से कोशिश करो 💪" },
+    { audioId: "nudge_listen__tina",    textHi: "ध्यान से सुनो।",                  displayHi: "ध्यान से सुनो 👂" },
+  ],
+  toto: [
+    { audioId: "nudge_try_again__toto", textHi: "कोई बात नहीं, फिर से कोशिश करो।", displayHi: "फिर से कोशिश करो 💪" },
+    { audioId: "nudge_listen__toto",    textHi: "ध्यान से सुनो।",                  displayHi: "ध्यान से सुनो 👂" },
+  ],
+};
+
+export function pickPraiseLine(speaker: SpeakerCharacter): { audioId: string; textHi: string; displayHi: string } {
+  const pool = PRAISE_LINES[speaker];
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-export function pickRetryAudioId(speaker: SpeakerCharacter): string {
-  const pool = RETRY_IDS[speaker];
+export function pickRetryLine(speaker: SpeakerCharacter): { audioId: string; textHi: string; displayHi: string } {
+  const pool = RETRY_LINES[speaker];
   return pool[Math.floor(Math.random() * pool.length)];
+}
+
+export function pickPraiseAudioId(speaker: SpeakerCharacter): string {
+  return pickPraiseLine(speaker).audioId;
+}
+
+export function pickRetryAudioId(speaker: SpeakerCharacter): string {
+  return pickRetryLine(speaker).audioId;
+}
+
+/** Spoken line when a sub-level completes — index matches completed sublevelIndex. */
+const RESTORE_LINES: { audioId: string; textHi: string }[] = [
+  { audioId: "restore_color",     textHi: "वाह! रंग वापस आ गए!" },
+  { audioId: "restore_grass",     textHi: "देखो, घास और फूल उग आए!" },
+  { audioId: "restore_trees",     textHi: "पेड़ वापस आ गए!" },
+  { audioId: "restore_rivers",    textHi: "नदी फिर से बहने लगी!" },
+  { audioId: "restore_animals",   textHi: "जानवर लौट आए!" },
+  { audioId: "restore_birds_sky", textHi: "पंछी और आसमान — जंगल फिर से जीवित हो गया!" },
+];
+
+export function getRestoreLine(completedSublevelIndex: number): { audioId: string; textHi: string } | null {
+  return RESTORE_LINES[completedSublevelIndex] ?? null;
 }

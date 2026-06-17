@@ -59,6 +59,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [isPlaying, setIsPlaying]         = useState(false);
   const howlCache   = useRef<Map<string, Howl>>(new Map());
   const activeHowls = useRef<Set<Howl>>(new Set());
+  const audioUnlockedRef = useRef(false);
+
+  audioUnlockedRef.current = audioUnlocked;
 
   // ── Mobile audio unlock ────────────────────────────────────────────────────
 
@@ -97,33 +100,42 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         return () => {};
       }
 
-      if (!audioUnlocked) {
+      if (!audioUnlockedRef.current) {
         onError?.();
         return () => {};
       }
 
       const howl = getOrCreateHowl(fileId);
+      howl.stop();
+      howl.off();
+
       setIsPlaying(true);
       activeHowls.current.add(howl);
 
+      let settled = false;
       const cleanup = () => {
         activeHowls.current.delete(howl);
         if (activeHowls.current.size === 0) setIsPlaying(false);
       };
 
-      howl.once("end", () => {
+      const settleEnd = () => {
+        if (settled) return;
+        settled = true;
         cleanup();
         onEnd?.();
-      });
+      };
 
+      howl.once("end", settleEnd);
       howl.once("stop", cleanup);
-
       howl.once("loaderror", () => {
+        if (settled) return;
+        settled = true;
         cleanup();
         onError?.();
       });
-
       howl.once("playerror", () => {
+        if (settled) return;
+        settled = true;
         cleanup();
         onError?.();
       });
@@ -132,7 +144,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       howl.play();
       return () => howl.stop();
     },
-    [audioUnlocked, getOrCreateHowl]
+    [getOrCreateHowl]
   );
 
   const stopAll = useCallback(() => {

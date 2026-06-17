@@ -9,7 +9,7 @@ const LEVEL_CUTSCENES: Record<string, CutsceneShot[]> = {
       imageAlt:  "टीना और टोटो",
       captionHi: "जंगल को बचाने के लिए कुछ सवालों के जवाब दो!",
       kenBurns:  "zoom-in",
-      audioId:   "",
+      audioId:   "story_hook_tina",
     },
     {
       id: "l1-s2",
@@ -17,7 +17,7 @@ const LEVEL_CUTSCENES: Record<string, CutsceneShot[]> = {
       imageAlt:  "टीना और टोटो",
       captionHi: "चलो सीखते हैं और जंगल को फिर से हरा-भरा बनाते हैं!",
       kenBurns:  "pan-right",
-      audioId:   "",
+      audioId:   "story_hook_toto",
     },
     {
       id: "l1-s3",
