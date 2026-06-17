@@ -115,25 +115,28 @@ export default function LevelEntryScreen({
           </p>
         </motion.div>
 
-        <motion.button
-          type="button"
-          onClick={finish}
-          className="absolute left-1/2 z-20 px-8 py-3 rounded-full font-display font-bold"
-          style={{
-            bottom: "8%",
-            transform: "translateX(-50%)",
-            background: "var(--firefly)",
-            color: "#1A0A00",
-            fontSize: "1rem",
-            boxShadow: "0 4px 20px rgba(255,200,74,0.5)",
-          }}
+        <motion.div
+          className="absolute left-0 right-0 z-20 flex justify-center"
+          style={{ bottom: "8%" }}
           initial={{ opacity: 0, scale: 0.88 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.3, duration: 0.4 }}
-          whileTap={{ scale: 0.9 }}
         >
-          शुरू करें →
-        </motion.button>
+          <motion.button
+            type="button"
+            onClick={finish}
+            className="px-8 py-3 rounded-full font-display font-bold"
+            style={{
+              background: "var(--firefly)",
+              color: "#1A0A00",
+              fontSize: "1rem",
+              boxShadow: "0 4px 20px rgba(255,200,74,0.5)",
+            }}
+            whileTap={{ scale: 0.9 }}
+          >
+            शुरू करें →
+          </motion.button>
+        </motion.div>
       </div>
     </div>
   );
