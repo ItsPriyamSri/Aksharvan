@@ -2,79 +2,39 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { motion } from "framer-motion";
 
-const backgroundUrl = "/hindi%20Home%20Screen%20toto%20compress.gif";
-
-const entrance = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.9,
-      ease: "easeOut",
-    },
-  },
-};
-
-const buttonMotion = {
-  whileHover: { scale: 1.02, y: -1 },
-  whileTap: { scale: 0.98 },
-  transition: { type: "spring", stiffness: 260, damping: 22 },
-};
-
-export default function HeroPage() {
+export default function EntryPage() {
   const { status } = useAuth();
-  const router = useRouter();
+  const router     = useRouter();
 
   useEffect(() => {
-    if (status === "authenticated") router.replace("/menu");
+    if (status === "loading") return;
+    router.replace(status === "authenticated" ? "/menu" : "/login");
   }, [status, router]);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-black">
-      {/* Background GIF */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${backgroundUrl})` }}
-      />
-
-      {/* Buttons */}
+    <div className="h-dvh flex flex-col items-center justify-center" style={{ background:"#0D1117" }}>
       <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={entrance}
-        className="relative z-10 flex min-h-screen flex-col justify-end px-6 pb-10"
+        initial={{ opacity:0, scale:0.8 }}
+        animate={{ opacity:1, scale:1 }}
+        transition={{ duration:0.5, ease:[0.16,1,0.3,1] }}
+        className="flex flex-col items-center gap-5"
       >
-        <div className="mx-auto mb-10 mt-6 flex w-[90vw] max-w-[380px] flex-col gap-4">
-          <motion.div
-            {...buttonMotion}
-            className="overflow-hidden rounded-[16px] bg-white shadow-[0_22px_60px_rgba(0,0,0,0.16)]"
-          >
-            <Link
-              href="/signup"
-              className="flex h-[56px] w-full items-center justify-center text-sm font-semibold text-black"
-            >
-              Get Started
-            </Link>
-          </motion.div>
-
-          <motion.div
-            {...buttonMotion}
-            className="overflow-hidden rounded-[16px] border border-white/25 bg-white/10 backdrop-blur-xl"
-          >
-            <Link
-              href="/login"
-              className="flex h-[56px] w-full items-center justify-center text-sm font-semibold text-black"
-            >
-              I already have an account
-            </Link>
-          </motion.div>
+        <h1 className="font-display font-extrabold gold" style={{ fontSize:"3.5rem" }}>
+          अक्षरवन
+        </h1>
+        <div className="flex gap-2">
+          {[0,1,2].map(i => (
+            <motion.div key={i} className="rounded-full"
+              style={{ width:10, height:10, background:"var(--firefly)" }}
+              animate={{ opacity:[0.3,1,0.3], y:[0,-8,0] }}
+              transition={{ duration:1, repeat:Infinity, delay:i*0.18 }}
+            />
+          ))}
         </div>
       </motion.div>
-    </section>
+    </div>
   );
 }
